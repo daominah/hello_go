@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="7b23b28f-400d-43fa-87a9-faab2699ae47" name="Default Changelist" comment="" />
+    <list default="true" id="7b23b28f-400d-43fa-87a9-faab2699ae47" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/http_request_reuse_connection/http_reuse_conn.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/linux_command/read_network_io.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/linux_command/z_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,15 +26,18 @@
     <session id="-751694687">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="1" />
-          <entry key="project.open.time.0" value="1" />
-          <entry key="project.open.time.4" value="1" />
-          <entry key="project.opened" value="2" />
+          <entry key="project.closed" value="7" />
+          <entry key="project.open.time.0" value="4" />
+          <entry key="project.open.time.2" value="1" />
+          <entry key="project.open.time.3" value="1" />
+          <entry key="project.open.time.4" value="5" />
+          <entry key="project.opened" value="11" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="go" value="41" />
+          <entry key="gitignore" value="1" />
+          <entry key="go" value="63" />
           <entry key="mod" value="2" />
           <entry key="pem" value="1" />
           <entry key="sh" value="1" />
@@ -40,31 +48,40 @@
         <counts>
           <entry key="Bash" value="1" />
           <entry key="DTD" value="2" />
-          <entry key="Go" value="41" />
-          <entry key="PLAIN_TEXT" value="4" />
+          <entry key="Go" value="63" />
+          <entry key="PLAIN_TEXT" value="5" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="go" value="349" />
+          <entry key="go" value="3627" />
           <entry key="sh" value="22" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="Bash" value="22" />
-          <entry key="Go" value="349" />
+          <entry key="Go" value="3627" />
         </counts>
       </usages-collector>
     </session>
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/panic/panic.go">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/main.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="299">
-              <caret line="29" column="17" lean-forward="true" selection-start-line="29" selection-start-column="17" selection-end-line="29" selection-end-column="17" />
+            <state relative-caret-position="278">
+              <caret line="113" column="39" lean-forward="true" selection-start-line="113" selection-start-column="39" selection-end-line="113" selection-end-column="39" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/http_request_reuse_connection/http_reuse_conn.go">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="591">
+              <caret line="58" column="19" lean-forward="true" selection-start-line="58" selection-start-column="19" selection-end-line="58" selection-end-column="19" />
             </state>
           </provider>
         </entry>
@@ -84,7 +101,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/main.go" />
         <option value="$PROJECT_DIR$/crypto_test/01_represent_bytes.go" />
         <option value="$PROJECT_DIR$/crypto_test/10_rsa_generate_key.go" />
         <option value="$PROJECT_DIR$/embed_struct/embed.go" />
@@ -101,6 +117,10 @@
         <option value="$PROJECT_DIR$/os_path/relative_path.go" />
         <option value="$PROJECT_DIR$/linux_command/linux_command.go" />
         <option value="$PROJECT_DIR$/panic/panic.go" />
+        <option value="$PROJECT_DIR$/main.go" />
+        <option value="$PROJECT_DIR$/linux_command/z_test.go" />
+        <option value="$PROJECT_DIR$/linux_command/read_network_io.go" />
+        <option value="$PROJECT_DIR$/http_request_reuse_connection/http_reuse_conn.go" />
       </list>
     </option>
   </component>
@@ -111,8 +131,10 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="width" value="1920" />
-    <option name="height" value="1047" />
+    <option name="x" value="260" />
+    <option name="y" value="23" />
+    <option name="width" value="1400" />
+    <option name="height" value="1000" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -161,7 +183,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -169,20 +190,17 @@
               <item name="hello_go" type="b2602c69:ProjectViewProjectNode" />
               <item name="hello_go" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="hello_go" type="b2602c69:ProjectViewProjectNode" />
-              <item name="hello_go" type="462c0819:PsiDirectoryNode" />
-              <item name="panic" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="go.gopath.indexing.explicitly.defined" value="true" />
     <property name="go.sdk.automatically.set" value="true" />
+    <property name="go.vgo.advertise" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
@@ -205,21 +223,12 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Go Build.go build panic.go">
-    <configuration name="go build http_server.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Go Build.go build http_reuse_conn.go">
+    <configuration name="go build http_reuse_conn.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="hello-go" />
       <working_directory value="$PROJECT_DIR$/" />
       <kind value="FILE" />
-      <filePath value="$PROJECT_DIR$/http_server/http_server.go" />
-      <package value="github.com/daominah/hello_go" />
-      <directory value="$PROJECT_DIR$/" />
-      <method v="2" />
-    </configuration>
-    <configuration name="go build https_tls_gen_cert.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
-      <module name="hello-go" />
-      <working_directory value="$PROJECT_DIR$/" />
-      <kind value="FILE" />
-      <filePath value="$PROJECT_DIR$/https_tls_gen_cert/https_tls_gen_cert.go" />
+      <filePath value="$PROJECT_DIR$/http_request_reuse_connection/http_reuse_conn.go" />
       <package value="github.com/daominah/hello_go" />
       <directory value="$PROJECT_DIR$/" />
       <method v="2" />
@@ -233,6 +242,15 @@
       <directory value="$PROJECT_DIR$/" />
       <method v="2" />
     </configuration>
+    <configuration name="go build main.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="hello-go" />
+      <working_directory value="$PROJECT_DIR$/" />
+      <kind value="FILE" />
+      <filePath value="$PROJECT_DIR$/main.go" />
+      <package value="github.com/daominah/hello_go" />
+      <directory value="$PROJECT_DIR$/" />
+      <method v="2" />
+    </configuration>
     <configuration name="go build panic.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="hello-go" />
       <working_directory value="$PROJECT_DIR$/" />
@@ -242,50 +260,75 @@
       <directory value="$PROJECT_DIR$/" />
       <method v="2" />
     </configuration>
-    <configuration name="go build relative_path.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+    <configuration name="TestReadNetIO in github.com/daominah/hello_go/linux_command" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
       <module name="hello-go" />
-      <working_directory value="$PROJECT_DIR$/" />
-      <kind value="FILE" />
-      <filePath value="$PROJECT_DIR$/os_path/relative_path.go" />
-      <package value="github.com/daominah/hello_go" />
+      <working_directory value="$PROJECT_DIR$/linux_command" />
+      <framework value="gotest" />
+      <kind value="PACKAGE" />
+      <package value="github.com/daominah/hello_go/linux_command" />
       <directory value="$PROJECT_DIR$/" />
+      <filePath value="$PROJECT_DIR$/" />
+      <pattern value="^TestReadNetIO$" />
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Go Build.go build http_server.go" />
-      <item itemvalue="Go Build.go build https_tls_gen_cert.go" />
-      <item itemvalue="Go Build.go build relative_path.go" />
       <item itemvalue="Go Build.go build linux_command.go" />
       <item itemvalue="Go Build.go build panic.go" />
+      <item itemvalue="Go Build.go build main.go" />
+      <item itemvalue="Go Test.TestReadNetIO in github.com/daominah/hello_go/linux_command" />
+      <item itemvalue="Go Build.go build http_reuse_conn.go" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Go Build.go build panic.go" />
+        <item itemvalue="Go Build.go build http_reuse_conn.go" />
+        <item itemvalue="Go Test.TestReadNetIO in github.com/daominah/hello_go/linux_command" />
         <item itemvalue="Go Build.go build linux_command.go" />
-        <item itemvalue="Go Build.go build relative_path.go" />
-        <item itemvalue="Go Build.go build https_tls_gen_cert.go" />
-        <item itemvalue="Go Build.go build http_server.go" />
+        <item itemvalue="Go Build.go build main.go" />
+        <item itemvalue="Go Build.go build panic.go" />
       </list>
     </recent_temporary>
+  </component>
+  <component name="TestHistory">
+    <history-entry file="TestReadNetIO_in_github_com_daominah_hello_go_linux_command - 2019.04.11 at 16h 21m 39s.xml">
+      <configuration name="TestReadNetIO in github.com/daominah/hello_go/linux_command" configurationId="GoTestRunConfiguration" />
+    </history-entry>
+    <history-entry file="TestReadNetIO_in_github_com_daominah_hello_go_linux_command - 2019.04.11 at 16h 22m 19s.xml">
+      <configuration name="TestReadNetIO in github.com/daominah/hello_go/linux_command" configurationId="GoTestRunConfiguration" />
+    </history-entry>
+    <history-entry file="TestReadNetIO_in_github_com_daominah_hello_go_linux_command - 2019.04.11 at 16h 24m 02s.xml">
+      <configuration name="TestReadNetIO in github.com/daominah/hello_go/linux_command" configurationId="GoTestRunConfiguration" />
+    </history-entry>
+    <history-entry file="TestReadNetIO_in_github_com_daominah_hello_go_linux_command - 2019.04.11 at 16h 31m 58s.xml">
+      <configuration name="TestReadNetIO in github.com/daominah/hello_go/linux_command" configurationId="GoTestRunConfiguration" />
+    </history-entry>
+  </component>
+  <component name="TodoView">
+    <todo-panel id="selected-file">
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+    <todo-panel id="all">
+      <are-packages-shown value="true" />
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
   </component>
   <component name="ToolWindowManager">
     <frame x="-3" y="0" width="1926" height="1049" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.19366953" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.21834764" />
       <window_info id="Favorites" order="1" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.4560811" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.4560811" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.32995495" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Database Changes" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="9" show_stripe_button="false" />
       <window_info anchor="bottom" id="Terminal" order="10" weight="0.4572072" />
-      <window_info anchor="bottom" id="Event Log" order="11" side_tool="true" />
+      <window_info anchor="bottom" id="Event Log" order="11" side_tool="true" weight="0.32995495" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -300,13 +343,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/main.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="138">
-          <caret line="6" column="12" lean-forward="true" selection-start-line="6" selection-start-column="12" selection-end-line="6" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/crypto_test/01_represent_bytes.go" />
     <entry file="file:///usr/local/go/src/hash/hash.go">
       <provider selected="true" editor-type-id="text-editor">
@@ -410,13 +446,6 @@
     <entry file="file://$PROJECT_DIR$/http_server/cert.pem">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file:///usr/local/go/src/net/http/server.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="149">
-          <caret line="3044" column="5" selection-start-line="3044" selection-start-column="5" selection-end-line="3044" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/image/image.go" />
     <entry file="file://$PROJECT_DIR$/json_read/read_json.go" />
     <entry file="file://$PROJECT_DIR$/http_server/http_server.go">
@@ -443,34 +472,120 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/martini_http_router/main.go">
+    <entry file="file://$PROJECT_DIR$/martini_http_router/main.go" />
+    <entry file="file://$PROJECT_DIR$/linux_command/subpackage/test_pwd.go" />
+    <entry file="file:///usr/local/go/src/runtime/debug/stack.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="287">
+          <caret line="23" selection-start-line="23" selection-end-line="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/panic/panic.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="292">
+          <caret line="36" column="11" lean-forward="true" selection-start-line="36" selection-start-column="11" selection-end-line="36" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/linux_command/subpackage/test_pwd.go">
+    <entry file="file:///usr/local/go/src/net/http/header.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="92">
-          <caret line="4" column="5" selection-start-line="4" selection-start-column="5" selection-end-line="4" selection-end-column="5" />
+        <state relative-caret-position="273">
+          <caret line="35" column="16" selection-start-line="35" selection-start-column="16" selection-end-line="35" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/go/src/builtin/builtin.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="284">
+          <caret line="133" column="5" selection-start-line="133" selection-start-column="5" selection-end-line="133" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/go/src/log/log.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="276">
+          <caret line="42" column="4" selection-start-line="42" selection-start-column="4" selection-end-line="42" selection-end-column="4" />
         </state>
       </provider>
     </entry>
     <entry file="file:///usr/local/go/src/os/exec/exec.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="491">
-          <caret line="313" column="14" selection-start-line="313" selection-start-column="14" selection-end-line="313" selection-end-column="14" />
+          <caret line="500" column="14" selection-start-line="500" selection-start-column="14" selection-end-line="500" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/go/src/strings/strings.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="273">
+          <caret line="946" column="20" selection-start-line="946" selection-start-column="14" selection-end-line="946" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/go/src/sync/waitgroup.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="273">
+          <caret line="102" column="21" selection-start-line="102" selection-start-column="21" selection-end-line="102" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/go/src/net/http/transport.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="836">
+          <caret line="102" column="5" selection-start-line="102" selection-start-column="5" selection-end-line="102" selection-end-column="5" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/linux_command/linux_command.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="209">
-          <caret line="11" column="36" lean-forward="true" selection-start-line="11" selection-start-column="36" selection-end-line="11" selection-end-column="36" />
+        <state relative-caret-position="161">
+          <caret line="10" column="36" lean-forward="true" selection-start-line="10" selection-start-column="36" selection-end-line="10" selection-end-column="36" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/panic/panic.go">
+    <entry file="file://$PROJECT_DIR$/linux_command/z_test.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="299">
-          <caret line="29" column="17" lean-forward="true" selection-start-line="29" selection-start-column="17" selection-end-line="29" selection-end-column="17" />
+        <state relative-caret-position="140">
+          <caret line="8" column="54" selection-start-line="8" selection-start-column="54" selection-end-line="8" selection-end-column="54" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/linux_command/read_network_io.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="161">
+          <caret line="9" column="26" selection-start-line="9" selection-start-column="26" selection-end-line="9" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/go/src/net/http/client.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="284">
+          <caret line="107" column="4" selection-start-line="107" selection-start-column="4" selection-end-line="107" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/go/src/net/http/server.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="149">
+          <caret line="3034" column="5" selection-start-line="3034" selection-start-column="5" selection-end-line="3034" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="278">
+          <caret line="113" column="39" lean-forward="true" selection-start-line="113" selection-start-column="39" selection-end-line="113" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/http_request_reuse_connection/http_reuse_conn.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="591">
+          <caret line="58" column="19" lean-forward="true" selection-start-line="58" selection-start-column="19" selection-end-line="58" selection-end-column="19" />
         </state>
       </provider>
     </entry>
