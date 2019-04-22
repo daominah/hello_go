@@ -37,9 +37,9 @@ func main() {
 	})
 	go func() {
 		fmt.Println("Server started")
-		//err := http.ListenAndServe(":8080", nil)
-		err := http.ListenAndServeTLS(":8081",
-			"http_server/cert.pem", "http_server/key.pem", nil)
+		err := http.ListenAndServe(":8080", nil)
+		//err := http.ListenAndServeTLS(":8081",
+		//	"http_server/cert.pem", "http_server/key.pem", nil)
 		if err != nil {
 			fmt.Println("http.ListenAndServe err", err)
 		}
