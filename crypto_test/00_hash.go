@@ -13,8 +13,8 @@ func init() {
 	_ = json.Marshal
 }
 
-func main() {
-	//func main00() {
+//func main() {
+func main00() {
 	//	h := sha256.New()
 	h := md5.New()
 

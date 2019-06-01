@@ -7,11 +7,10 @@ import (
 	"encoding/pem"
 	"fmt"
 	"io/ioutil"
-	//	"math"
 )
 
-//func main10() {
-	func main() {
+func main10() {
+//	func main() {
 	Priv, err := rsa.GenerateKey(rand.Reader, 1024)
 	if err != nil {
 		fmt.Println("ERROR: ", err)
