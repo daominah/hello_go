@@ -9,9 +9,9 @@ import (
 	"io/ioutil"
 )
 
-func main10() {
+func main() {
 //	func main() {
-	Priv, err := rsa.GenerateKey(rand.Reader, 1024)
+	Priv, err := rsa.GenerateKey(rand.Reader, 256)
 	if err != nil {
 		fmt.Println("ERROR: ", err)
 	}
@@ -30,7 +30,7 @@ func main10() {
 	ioutil.WriteFile("crypto_test/key.priv", pemdata, 0644)
 
 	// MarshalPKIXPublicKey serialises a public key to DER-encoded PKIX format
-	PubASN1, err := x509.MarshalPKIXPublicKey(&Priv.PublicKey)
+	PubASN1 := x509.MarshalPKCS1PublicKey(&Priv.PublicKey)
 	if err != nil {
 		fmt.Println("ERROR: ", err)
 	}
