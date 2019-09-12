@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/BurntSushi/toml"
 	errors2 "github.com/pkg/errors"
+	"io/ioutil"
 	"log"
 	"strings"
 )
@@ -101,4 +102,14 @@ func main() {
 		}
 		fmt.Println("jsoned:\n", jsoned)
 	}
+
+	bs, err := ioutil.ReadFile("/home/tungdt/go/src/github.com/daominah/translate/data_kingtalk/lang_pack_en.toml")
+	if err != nil {
+		log.Fatal(err)
+	}
+	j, err := tomlToJson(string(bs))
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("ngon", j)
 }

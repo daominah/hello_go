@@ -11,7 +11,7 @@ import (
 
 func main() {
 //	func main() {
-	Priv, err := rsa.GenerateKey(rand.Reader, 256)
+	Priv, err := rsa.GenerateKey(rand.Reader, 4096)
 	if err != nil {
 		fmt.Println("ERROR: ", err)
 	}
