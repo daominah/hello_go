@@ -1,6 +1,6 @@
 package main
 
-import "fmt"
+import "log"
 
 func worker(workerId int, inChan chan *int, outChan chan int) {
 	sum := 0
@@ -10,21 +10,24 @@ func worker(workerId int, inChan chan *int, outChan chan int) {
 		if data == nil {
 			break
 		}
-		fmt.Printf("worker %v received data: %v\n", workerId, *data)
+		//log.Printf("worker %v received data: %v\n", workerId, *data)
 		sum += *data
 	}
-	fmt.Printf("worker %v is about to return: %v\n", workerId, sum)
+	log.Printf("worker %v is about to return: %v\n", workerId, sum)
 	outChan <- sum
 }
 
 func main() {
+	log.SetFlags(log.Lmicroseconds)
 	nWorkers := 4
 	inChan := make(chan *int)
 	outChan := make(chan int)
 	for i := 0; i < nWorkers; i++ {
 		go worker(i, inChan, outChan)
 	}
-	for i := 0; i < 100; i++ {
+
+	log.Println("starting the main")
+	for i := 0; i < 10000000; i++ {
 		clonedValue := i
 		inChan <- &clonedValue
 	}
@@ -34,5 +37,5 @@ func main() {
 		r := <-outChan
 		sum += r
 	}
-	fmt.Println("sum", sum)
+	log.Println("sum:", sum)
 }
