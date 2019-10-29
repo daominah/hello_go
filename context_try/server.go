@@ -17,8 +17,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/daominah/hello_go/context/google"
-	"github.com/daominah/hello_go/context/userip"
+	"github.com/daominah/hello_go/context_try/google"
+	"github.com/daominah/hello_go/context_try/userip"
 )
 
 func main() {

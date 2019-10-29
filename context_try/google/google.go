@@ -13,7 +13,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/daominah/hello_go/context/userip"
+	"github.com/daominah/hello_go/context_try/userip"
 )
 
 // Results is an ordered list of search results.

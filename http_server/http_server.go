@@ -31,6 +31,7 @@ func DumpRequest(r *http.Request) string {
 
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		//time.Sleep(3*time.Second)
 		dumpedReq := DumpRequest(r)
 		fmt.Print(dumpedReq)
 		w.Write([]byte(dumpedReq))
