@@ -52,7 +52,7 @@ func NewLogger(conf Config) *zap.SugaredLogger {
 		} else {
 			fileWriter = zapcore.AddSync(NewTimedRotatingWriter(
 				&lumberjack.Logger{Filename: conf.LogFilePath},
-				/* interval */ 10*time.Millisecond,
+				/* interval */ 24*time.Hour,
 			))
 		}
 		if conf.IsNotLogBoth {
