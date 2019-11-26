@@ -18,8 +18,8 @@ func SendFile() {
 	// create request
 	requestBody := &bytes.Buffer{}
 	mapFieldToFilePath := map[string]string{
-		"file1": "file1.jpg",
-		"file2": "file2.txt",
+		"file1": "/home/tungdt/go/src/github.com/daominah/hello_go/http_request_form_data/file1.jpg",
+		"file2": "/home/tungdt/go/src/github.com/daominah/hello_go/http_request_form_data/file2.txt",
 	}
 	writer := multipart.NewWriter(requestBody)
 	for key, filePath := range mapFieldToFilePath {
@@ -65,4 +65,8 @@ func SendFile() {
 	dumpedResponse, err := httputil.DumpResponse(response, true)
 	fmt.Printf("Err: %v. DumpedResponse:\n%v%v",
 		err, string(dumpedResponse), SPLITTER)
+}
+
+func main() {
+	SendFile()
 }
