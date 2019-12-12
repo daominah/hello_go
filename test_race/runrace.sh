@@ -1,1 +1,1 @@
-go run -race /home/tungdt/go/src/github.com/daominah/hello_go/test_race/main.go
+go run -race /home/tungdt/go/src/github.com/daominah/hello_go/test_race/race.go
