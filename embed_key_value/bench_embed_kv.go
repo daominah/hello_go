@@ -14,7 +14,8 @@ type Sequencer interface {
 
 func main() {
 	var seqer Sequencer
-	seqer, err := NewLevelDBSequencer("leveldb.seq")
+	//seqer, err := NewLevelDBSequencer("leveldb0.seq", true)
+	seqer, err := NewLevelDBSequencer("leveldb1.seq", false)
 	//seqer, err := NewBoltDBSequencer("boltdb.seq")
 	if err != nil {
 		log.Fatal(err)
