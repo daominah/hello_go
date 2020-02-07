@@ -35,7 +35,7 @@ func Job() {
 }
 
 func main() {
-	ticker := time.NewTicker(30 * time.Second)
+	ticker := time.NewTicker(1 * time.Second)
 	for {
 		go Job()
 		<-ticker.C
