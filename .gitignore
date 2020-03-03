@@ -5,3 +5,5 @@ main.out
 nohup.out
 http_server/http_server
 *.seq
+*.prof
+profile*.pdf
