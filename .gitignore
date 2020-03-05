@@ -4,7 +4,6 @@ hello_go
 http_server/http_server
 
 main.go
-main_test.go
 
 *.out
 *.seq
