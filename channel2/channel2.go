@@ -17,7 +17,7 @@ func Sum(n int64) int64 {
 func main() {
 	n := int64(30000000000) // 30e9
 	sum := int64(0)
-	bt := time.Now()
+	beginTime := time.Now()
 
 	nWorkers := 4
 	sumChan := make(chan int64, nWorkers)
@@ -28,8 +28,7 @@ func main() {
 		sum += <-sumChan
 	}
 
-	dur := time.Now().Sub(bt)
-	fmt.Println("dur:", dur)
+	fmt.Println("dur:", time.Since(beginTime))
 	fmt.Println("sum:", sum)
 
 	// Results on Intel Core i5-8265U (nWorkers,dur):
