@@ -1,38 +1,10 @@
 package main
 
 import (
-	"crypto/rand"
-	"crypto/rsa"
 	"crypto/x509"
-	"encoding/base64"
 	"encoding/pem"
-	"fmt"
+	"log"
 )
-
-// output is base64 encoded,
-// padding scheme is the original PKCS#1 v1.5
-func RsaEncrypt(plaintext string, publicKey *rsa.PublicKey) (string, error) {
-	input := []byte(plaintext)
-	cipherBytes, err := rsa.EncryptPKCS1v15(rand.Reader, publicKey, input)
-	if err != nil {
-		return "", err
-	} else {
-		return base64.StdEncoding.EncodeToString(cipherBytes), nil
-	}
-}
-
-func RsaDecrypt(cipherBase64 string, privateKey *rsa.PrivateKey) (string, error) {
-	input, err := base64.StdEncoding.DecodeString(cipherBase64)
-	if err != nil {
-		return "", err
-	}
-	bs, err := rsa.DecryptPKCS1v15(rand.Reader, privateKey, input)
-	if err != nil {
-		return "", err
-	} else {
-		return string(bs), nil
-	}
-}
 
 //func main() {
 func main() {
@@ -47,24 +19,19 @@ sI42FLUWeJ4Os4kCEQCqPk1+fqJc7cEx46aQYgn5
 -----END RSA PRIVATE KEY-----`
 	_, _ = publicPem, privatePem
 
-	block, _ := pem.Decode([]byte(publicPem))
-	key, err := x509.ParsePKCS1PublicKey(block.Bytes)
+	tmp, _ := pem.Decode([]byte(publicPem))
+	publicKey, err := x509.ParsePKCS1PublicKey(tmp.Bytes)
 	if err != nil {
-		fmt.Println("err", err)
+		log.Fatal(err)
 	}
-	fmt.Printf("pubKeyLen %v key %+v\n", key.N.BitLen(), key)
-	// echo 'hohohaha' | openssl rsautl -encrypt -pubin -inkey hfc.pub -out >(base64)
-	plaintext := "hohohaha"
-	ciphertext, err := RsaEncrypt(plaintext, key)
-	fmt.Printf("err: %v, ciphertext:\n%v\n", err, ciphertext)
-
-	// decode
-	block, _ = pem.Decode([]byte(privatePem))
-	key2, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	tmp, _ = pem.Decode([]byte(privatePem))
+	privateKey, err := x509.ParsePKCS1PrivateKey(tmp.Bytes)
 	if err != nil {
-		fmt.Println("err2", err)
+		log.Fatal(err)
 	}
-	fmt.Printf("privateKeyLen %v key %+v\n", key2.N.BitLen(), key2)
-	ptext2, err := RsaDecrypt(ciphertext, key2)
-	fmt.Printf("err: %v, ptext2:\n%v\n", err, ptext2)
+	log.Printf("privateKeyLen %v publicKey %+v\n", privateKey.N.BitLen(), privateKey)
+	if privateKey.PublicKey.N.Cmp(publicKey.N) != 0 ||
+		privateKey.PublicKey.E != publicKey.E {
+			log.Fatal("keys is not a pair")
+	}
 }

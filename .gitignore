@@ -3,10 +3,10 @@
 hello_go
 http_server/http_server
 
-*.out
-*.pdf
-
 main.go
 main_test.go
 
-
+*.out
+*.seq
+*.prof
+profile*.pdf
