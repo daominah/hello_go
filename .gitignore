@@ -1,6 +1,12 @@
 .idea
+
 hello_go
-main.go
-main.out
-nohup.out
 http_server/http_server
+
+*.out
+*.pdf
+
+main.go
+main_test.go
+
+
