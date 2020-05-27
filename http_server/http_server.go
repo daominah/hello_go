@@ -1,49 +1,36 @@
 package main
 
 import (
-	"fmt"
-	"strings"
-	"time"
-
-	//	"io/ioutil"
+	"log"
 	"net/http"
-	"net/http/httputil"
+	"time"
 )
-
-const (
-	SPLITTER = "\n____________________________________________________________\n"
-)
-
-func DumpRequest(r *http.Request) string {
-	fmt.Println("test %+v", r)
-	part1 := fmt.Sprintf("%v received request from %v at %v: ",
-		r.Host, r.RemoteAddr, time.Now().Format(time.RFC3339))
-	temp, err := httputil.DumpRequest(r, true)
-	if err != nil {
-		return fmt.Sprintf("ERROR: %v", err)
-	}
-	part2 := fmt.Sprintf(string(temp))
-	part3 := fmt.Sprintf(SPLITTER)
-	return strings.Join([]string{part1, part2, part3}, "\n")
-
-	//http.
-}
 
 func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		//time.Sleep(3*time.Second)
-		dumpedReq := DumpRequest(r)
-		fmt.Print(dumpedReq)
-		w.Write([]byte(dumpedReq))
-	})
-	go func() {
-		fmt.Println("Server started")
-		err := http.ListenAndServe(":8080", nil)
-		//err := http.ListenAndServeTLS(":8081",
-		//	"http_server/cert.pem", "http_server/key.pem", nil)
-		if err != nil {
-			fmt.Println("http.ListenAndServe err", err)
-		}
-	}()
-	select {}
+	log.SetFlags(log.Ltime | log.Lshortfile)
+
+	handler := http.NewServeMux()
+	handler.HandleFunc("/long-task",
+		func(w http.ResponseWriter, r *http.Request) {
+			go func() {
+				reqDeadline, ok := r.Context().Deadline()
+				log.Printf("req ctx deadline %v, %v\n", reqDeadline, ok)
+				<-r.Context().Done()
+				log.Println("client closed or server responded")
+			}()
+			log.Println("handling long-task")
+			time.Sleep(2 * time.Second)
+			n, err := w.Write([]byte("my slow response"))
+			if err != nil {
+				log.Println("error when ResponseWriter Write: ", err)
+			}
+			log.Printf("responded to long-task. n: %v\n", n)
+		})
+	server := &http.Server{Addr: ":8008", Handler: handler}
+
+	log.Println("listening on port ", server.Addr)
+	err := server.ListenAndServe()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
