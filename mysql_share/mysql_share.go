@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"sync"
@@ -8,11 +10,6 @@ import (
 	"github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 )
-
-type Shared struct {
-	Key string `gorm:"primary_key"`
-	Val int
-}
 
 func main() {
 	log.SetFlags(log.Lshortfile | log.Lmicroseconds)
@@ -26,39 +23,68 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	dbRet := db.AutoMigrate(&Shared{})
-	if dbRet.Error != nil {
-		log.Fatal(dbRet.Error)
+	migrateRet := db.AutoMigrate(&Shared{})
+	if migrateRet.Error != nil {
+		log.Fatal(migrateRet.Error)
 	}
-	dbRet = db.Save(&Shared{Key: "a", Val: 0})
-	if dbRet.Error != nil {
-		log.Fatal(dbRet.Error)
+	initRet := db.Save(&Shared{Key: SharedKey0, Val: 0})
+	if initRet.Error != nil {
+		log.Fatal(initRet.Error)
 	}
 
-	//
+	n := 100 // max 150 connections
 	wg := sync.WaitGroup{}
-	for i := 0; i < 30; i++ {
+	for i := 0; i < n; i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Add(-1)
-			a := Shared{Key: "a"}
-			dbRet := db.Find(&a)
-			if dbRet.Error != nil {
-				log.Println(dbRet.Error)
-			}
-			a.Val += 1
-			dbRet = db.Save(&a)
-			if dbRet.Error != nil {
-				log.Println(dbRet.Error)
-			}
+			updated, err := Incr(db)
+			log.Printf("incr: err: %v, updatedValue: %v\n", err, updated)
 		}()
 	}
 	wg.Wait()
 
 	//
-	a := Shared{Key: "a"}
+	a := Shared{Key: SharedKey0}
 	_ = db.Find(&a)
-	if a.Val != 30 {
-		log.Fatalf("expected: 30, actual: %v\n", a.Val)
+	if a.Val != n {
+		log.Fatalf("expected: %v, actual: %v\n", n, a.Val)
+	} else {
+		log.Println("ngon")
 	}
+}
+
+const SharedKey0 = "SharedKey0"
+
+type Shared struct {
+	Key string `gorm:"primary_key"`
+	Val int
+}
+
+func Incr(db *gorm.DB) (updatedValue int, err error) {
+	tx := db.BeginTx(context.Background(), &sql.TxOptions{
+		Isolation: sql.LevelRepeatableRead,
+		ReadOnly:  false,
+	})
+	a := Shared{Key: SharedKey0}
+	findRet := tx.Set("gorm:query_option", "FOR UPDATE").Find(&a)
+	if findRet.Error != nil {
+		err := fmt.Errorf("error when select: %v", findRet.Error)
+		tx.Rollback()
+		return 0, err
+	}
+	a.Val += 1
+	SaveRet := tx.Save(&a)
+	if SaveRet.Error != nil {
+		err := fmt.Errorf("error when update: %v", SaveRet.Error)
+		tx.Rollback()
+		return 0, err
+	}
+	commitRet := tx.Commit()
+	if commitRet.Error != nil {
+		err := fmt.Errorf("error when commit: %v", commitRet.Error)
+		return 0, err
+	}
+	updatedValue = a.Val
+	return updatedValue, err
 }
