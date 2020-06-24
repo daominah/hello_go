@@ -7,6 +7,8 @@ import (
 	"log"
 	"sync"
 
+	"time"
+
 	"github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 )
@@ -23,6 +25,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	db.DB().SetMaxOpenConns(50) // MySQL default max connections = 150
+
+	// init a shared row
 	migrateRet := db.AutoMigrate(&Shared{})
 	if migrateRet.Error != nil {
 		log.Fatal(migrateRet.Error)
@@ -32,7 +37,9 @@ func main() {
 		log.Fatal(initRet.Error)
 	}
 
-	n := 100 // max 150 connections
+	// concurrently update the row
+	bTime := time.Now()
+	n := 1000
 	wg := sync.WaitGroup{}
 	for i := 0; i < n; i++ {
 		wg.Add(1)
@@ -43,13 +50,15 @@ func main() {
 		}()
 	}
 	wg.Wait()
+	log.Println("updates duration:", time.Since(bTime))
 
-	//
+	// check the row after updates
 	a := Shared{Key: SharedKey0}
 	_ = db.Find(&a)
 	if a.Val != n {
 		log.Fatalf("expected: %v, actual: %v\n", n, a.Val)
 	} else {
+		log.Printf("expected: %v, actual: %v\n", n, a.Val)
 		log.Println("ngon")
 	}
 }
@@ -66,6 +75,10 @@ func Incr(db *gorm.DB) (updatedValue int, err error) {
 		Isolation: sql.LevelRepeatableRead,
 		ReadOnly:  false,
 	})
+	if tx.Error != nil {
+		err := fmt.Errorf("error when create tx: %v", tx.Error)
+		return 0, err
+	}
 	a := Shared{Key: SharedKey0}
 	findRet := tx.Set("gorm:query_option", "FOR UPDATE").Find(&a)
 	if findRet.Error != nil {
