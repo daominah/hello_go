@@ -44,7 +44,7 @@ func main() {
 		wg.Add(1)
 		go func() {
 			defer wg.Add(-1)
-			updated, err := Incr(db)
+			updated, err := Incr2(db)
 			log.Printf("incr: err: %v, updatedValue: %v\n", err, updated)
 		}()
 	}
@@ -98,5 +98,22 @@ func Incr(db *gorm.DB) (updatedValue int, err error) {
 		return 0, err
 	}
 	updatedValue = a.Val
-	return updatedValue, err
+	return updatedValue, nil
+}
+
+func Incr2(db *gorm.DB) (updatedValue int, err error) {
+	a := Shared{Key: SharedKey0}
+	findRet := db.Find(&a)
+	if findRet.Error != nil {
+		err := fmt.Errorf("error when select: %v", findRet.Error)
+		return 0, err
+	}
+	a.Val += 1
+	SaveRet := db.Save(&a)
+	if SaveRet.Error != nil {
+		err := fmt.Errorf("error when update: %v", SaveRet.Error)
+		return 0, err
+	}
+	updatedValue = a.Val
+	return updatedValue, nil
 }
