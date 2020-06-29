@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"sync"
-
 	"time"
 
 	"github.com/go-sql-driver/mysql"
