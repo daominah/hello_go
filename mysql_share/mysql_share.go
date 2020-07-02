@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"math/rand"
 	"sync"
 	"time"
 
@@ -14,38 +15,66 @@ import (
 
 func main() {
 	log.SetFlags(log.Lshortfile | log.Lmicroseconds)
-
-	// CREATE DATABASE test_concurrent CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 	_ = mysql.MySQLError{} // for auto import
-	dataSource := fmt.Sprintf(
-		"%v:%v@tcp(%v:%v)/%v?charset=utf8mb4&parseTime=True&loc=Local",
-		"root", "123qwe", "172.19.0.101", "3306", "test_concurrent")
-	db, err := gorm.Open("mysql", dataSource)
-	if err != nil {
-		log.Fatal(err)
-	}
-	db.DB().SetMaxOpenConns(50) // MySQL default max connections = 150
+	// CREATE DATABASE test_concurrent CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 
-	// init a shared row
-	migrateRet := db.AutoMigrate(&Shared{})
-	if migrateRet.Error != nil {
-		log.Fatal(migrateRet.Error)
-	}
-	initRet := db.Save(&Shared{Key: SharedKey0, Val: 0})
-	if initRet.Error != nil {
-		log.Fatal(initRet.Error)
+	//mysqlHosts := []string{"172.19.0.101"} // update on 1 primary
+	mysqlHosts := []string{"172.19.0.101", "172.19.0.102", "172.19.0.103"}
+	//mysqlHosts := []string{"127.0.0.1"}
+
+	dbs := make(map[string]*gorm.DB)
+	for _, nodeHost := range mysqlHosts {
+		dataSource := fmt.Sprintf(
+			"%v:%v@tcp(%v:%v)/%v?charset=utf8mb4&parseTime=True&loc=Local",
+			"root", "123qwe", nodeHost, "3306", "test_concurrent")
+		db, err := gorm.Open("mysql", dataSource)
+		if err != nil {
+			log.Fatal(err)
+		}
+		db.DB().SetMaxOpenConns(30) // MySQL default max connections = 150
+		db.LogMode(false)
+
+		// init a shared row
+		migrateRet := db.AutoMigrate(&Shared{})
+		if migrateRet.Error != nil {
+			log.Fatal(migrateRet.Error)
+		}
+		initRet := db.Save(&Shared{Key: SharedKey0, Val: 0})
+		if initRet.Error != nil {
+			log.Fatal(initRet.Error)
+		}
+		dbs[nodeHost] = db
 	}
 
 	// concurrently update the row
 	bTime := time.Now()
-	n := 1000
+	n := 500
+	nErrs := 0
+	nTries := 0
+	mutex := &sync.Mutex{}
 	wg := sync.WaitGroup{}
 	for i := 0; i < n; i++ {
 		wg.Add(1)
 		go func() {
+			host := mysqlHosts[rand.Intn(len(dbs))]
+			db := dbs[host]
 			defer wg.Add(-1)
-			updated, err := Incr(db)
-			log.Printf("incr: err: %v, updatedValue: %v\n", err, updated)
+			updated := 0
+			job := func() error {
+				var err error
+				updated, err = Incr(db)
+				return err
+			}
+			nTriesLocal, err := retry(50*time.Millisecond, 10, job)
+			log.Printf("host %v incr: err: %v, updatedValue: %v\n",
+				host, err, updated)
+
+			mutex.Lock()
+			nTries += nTriesLocal
+			if err != nil {
+				nErrs += 1
+			}
+			mutex.Unlock()
 		}()
 	}
 	wg.Wait()
@@ -53,13 +82,9 @@ func main() {
 
 	// check the row after updates
 	a := Shared{Key: SharedKey0}
-	_ = db.Find(&a)
-	if a.Val != n {
-		log.Fatalf("expected: %v, actual: %v\n", n, a.Val)
-	} else {
-		log.Printf("expected: %v, actual: %v\n", n, a.Val)
-		log.Println("ngon")
-	}
+	_ = dbs[mysqlHosts[0]].Find(&a)
+	log.Printf("expected: %v, actual: %v, nErrs: %v, nTries: %v\n",
+		n, a.Val, nErrs, nTries)
 }
 
 const SharedKey0 = "SharedKey0"
@@ -116,4 +141,21 @@ func Incr2(db *gorm.DB) (updatedValue int, err error) {
 	}
 	updatedValue = a.Val
 	return updatedValue, nil
+}
+
+// https://dev.mysql.com/doc/refman/8.0/en/group-replication-limitations.html
+func retry(baseBackoff time.Duration, maxRetries int, f func() error) (
+	nTries int, retErr error) {
+	backoff := baseBackoff
+	for i := 1; i <= maxRetries; i++ {
+		err := f()
+		if err == nil {
+			return i, nil
+		}
+		retErr = err
+		approximateBackoff := backoff * time.Duration(80+rand.Intn(40)) / 100
+		time.Sleep(approximateBackoff)
+		backoff = time.Duration(float64(backoff) * 1.5)
+	}
+	return maxRetries, retErr
 }
