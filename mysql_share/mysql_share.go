@@ -15,11 +15,11 @@ import (
 func main() {
 	log.SetFlags(log.Lshortfile | log.Lmicroseconds)
 
-	// CREATE DATABASE concurrent CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+	// CREATE DATABASE test_concurrent CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 	_ = mysql.MySQLError{} // for auto import
 	dataSource := fmt.Sprintf(
 		"%v:%v@tcp(%v:%v)/%v?charset=utf8mb4&parseTime=True&loc=Local",
-		"root", "123qwe", "127.0.0.1", "3306", "concurrent")
+		"root", "123qwe", "172.19.0.101", "3306", "test_concurrent")
 	db, err := gorm.Open("mysql", dataSource)
 	if err != nil {
 		log.Fatal(err)
@@ -44,7 +44,7 @@ func main() {
 		wg.Add(1)
 		go func() {
 			defer wg.Add(-1)
-			updated, err := Incr2(db)
+			updated, err := Incr(db)
 			log.Printf("incr: err: %v, updatedValue: %v\n", err, updated)
 		}()
 	}
