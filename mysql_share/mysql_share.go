@@ -18,9 +18,9 @@ func main() {
 	_ = mysql.MySQLError{} // for auto import
 	// CREATE DATABASE test_concurrent CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 
-	//mysqlHosts := []string{"172.19.0.101"} // update on 1 primary
-	mysqlHosts := []string{"172.19.0.101", "172.19.0.102", "172.19.0.103"}
+	mysqlHosts := []string{"172.16.121.11", "172.16.121.22"}
 	//mysqlHosts := []string{"127.0.0.1"}
+	runningHosts := make([]string, 0)
 
 	dbs := make(map[string]*gorm.DB)
 	for _, nodeHost := range mysqlHosts {
@@ -29,8 +29,10 @@ func main() {
 			"root", "123qwe", nodeHost, "3306", "test_concurrent")
 		db, err := gorm.Open("mysql", dataSource)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			continue
 		}
+		runningHosts = append(runningHosts, nodeHost)
 		db.DB().SetMaxOpenConns(30) // MySQL default max connections = 150
 		db.LogMode(false)
 
@@ -45,6 +47,9 @@ func main() {
 		}
 		dbs[nodeHost] = db
 	}
+	if len(runningHosts) == 0 {
+		log.Fatal("no running host")
+	}
 
 	// concurrently update the row
 	bTime := time.Now()
@@ -56,8 +61,11 @@ func main() {
 	for i := 0; i < n; i++ {
 		wg.Add(1)
 		go func() {
-			host := mysqlHosts[rand.Intn(len(dbs))]
-			db := dbs[host]
+			host := runningHosts[rand.Intn(len(runningHosts))]
+			db, found := dbs[host]
+			if !found {
+				return
+			}
 			defer wg.Add(-1)
 			updated := 0
 			job := func() error {
@@ -82,7 +90,7 @@ func main() {
 
 	// check the row after updates
 	a := Shared{Key: SharedKey0}
-	_ = dbs[mysqlHosts[0]].Find(&a)
+	_ = dbs[runningHosts[0]].Find(&a)
 	log.Printf("expected: %v, actual: %v, nErrs: %v, nTries: %v\n",
 		n, a.Val, nErrs, nTries)
 }
@@ -90,8 +98,9 @@ func main() {
 const SharedKey0 = "SharedKey0"
 
 type Shared struct {
-	Key string `gorm:"primary_key"`
-	Val int
+	Key       string `gorm:"primary_key"`
+	Val       int
+	UpdatedAt time.Time
 }
 
 func Incr(db *gorm.DB) (updatedValue int, err error) {
@@ -111,6 +120,7 @@ func Incr(db *gorm.DB) (updatedValue int, err error) {
 		return 0, err
 	}
 	a.Val += 1
+	a.UpdatedAt = time.Now()
 	SaveRet := tx.Save(&a)
 	if SaveRet.Error != nil {
 		err := fmt.Errorf("error when update: %v", SaveRet.Error)
@@ -134,6 +144,7 @@ func Incr2(db *gorm.DB) (updatedValue int, err error) {
 		return 0, err
 	}
 	a.Val += 1
+	a.UpdatedAt = time.Now()
 	SaveRet := db.Save(&a)
 	if SaveRet.Error != nil {
 		err := fmt.Errorf("error when update: %v", SaveRet.Error)
