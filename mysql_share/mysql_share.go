@@ -18,7 +18,7 @@ func main() {
 	_ = mysql.MySQLError{} // for auto import
 	// CREATE DATABASE test_concurrent CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 
-	mysqlHosts := []string{"172.16.121.11", "172.16.121.22"}
+	mysqlHosts := []string{"10.100.50.101", "10.100.50.102"}
 	//mysqlHosts := []string{"127.0.0.1"}
 	runningHosts := make([]string, 0)
 
@@ -26,7 +26,7 @@ func main() {
 	for _, nodeHost := range mysqlHosts {
 		dataSource := fmt.Sprintf(
 			"%v:%v@tcp(%v:%v)/%v?charset=utf8mb4&parseTime=True&loc=Local",
-			"root", "123qwe", nodeHost, "3306", "test_concurrent")
+			"tungdt", "123qwe", nodeHost, "3306", "test_concurrent")
 		db, err := gorm.Open("mysql", dataSource)
 		if err != nil {
 			log.Println(err)

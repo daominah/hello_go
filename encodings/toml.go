@@ -4,23 +4,23 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/BurntSushi/toml"
-	errors2 "github.com/pkg/errors"
 	"io/ioutil"
 	"log"
 	"strings"
+
+	"github.com/BurntSushi/toml"
 )
 
 func tomlToJson(tomled string) (string, error) {
 	var obj interface{}
 	_, err := toml.Decode(tomled, &obj)
 	if err != nil {
-		return "", errors2.Wrap(err, "cannot toml decode")
+		return "", fmt.Errorf("toml decode: %v", err)
 	}
 
 	bs, err := json.MarshalIndent(obj, "", "    ")
 	if err != nil {
-		return "", errors2.Wrap(err, "cannot json encode")
+		return "", fmt.Errorf(err, "json encode: %v", err)
 	}
 	jsoned := string(bs)
 
@@ -31,7 +31,7 @@ func jsonToToml(jsoned string) (string, error) {
 	var obj interface{}
 	err := json.Unmarshal([]byte(jsoned), &obj)
 	if err != nil {
-		return "", errors2.Wrap(err, "cannot json decode")
+		return "", fmt.Errorf("json decode: %v", err)
 	}
 
 	var buf bytes.Buffer
@@ -39,7 +39,7 @@ func jsonToToml(jsoned string) (string, error) {
 	encoder.Indent = strings.Repeat(" ", 4)
 	err = encoder.Encode(obj)
 	if err != nil {
-		return "", errors2.Wrap(err, "cannot toml encode")
+		return "", fmt.Errorf("toml encode: %v", err)
 	}
 	tomled := buf.String()
 

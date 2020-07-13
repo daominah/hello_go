@@ -1,10 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"log"
-
-	"encoding/json"
 )
 
 type ExHtml struct {
