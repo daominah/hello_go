@@ -8,55 +8,45 @@ import (
 	"time"
 )
 
-func SendRequest(httpClient *http.Client) error {
-	request, _ := http.NewRequest("GET", "http://127.0.0.1:8080/", nil)
-	response, err := httpClient.Do(request)
+func main() {
+	log.SetFlags(log.Lshortfile | log.Lmicroseconds)
+	server := &http.Server{Addr: ":20891"}
+	go server.ListenAndServe()
+
+	var httpClient *http.Client
+	if false { // create max 100 conns, reuse for next requests
+		httpClient = &http.Client{
+			Transport: &http.Transport{MaxConnsPerHost: 100},
+			Timeout:   10 * time.Second,
+		}
+	} else { // watch -n 0.2 "netstat | wc -l"
+		httpClient = http.DefaultClient
+	}
+
+	wg := &sync.WaitGroup{}
+	for k := 0; k < 100000; k++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Add(-1)
+			sendRequest(httpClient)
+		}()
+	}
+	wg.Wait()
+	log.Println("done")
+}
+
+func sendRequest(httpClient *http.Client) error {
+	r, _ := http.NewRequest("GET", "http://127.0.0.1:20891/", nil)
+	w, err := httpClient.Do(r)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
-	body, err := ioutil.ReadAll(response.Body)
+	defer w.Body.Close()
+	body, err := ioutil.ReadAll(w.Body)
 	if err != nil {
 		return err
 	}
 	_ = body
-	response.Body.Close()
 	return nil
-}
-
-func SendAlotRequests(isGood bool) {
-	_ = time.Second
-	waiter := sync.WaitGroup{}
-	for i := 0; i<100; i ++ {
-		waiter.Add(1)
-		go func () {
-			var httpClient *http.Client
-			if isGood {
-				//this work
-				httpClient = &http.Client{
-					Transport: &http.Transport{MaxIdleConns: 10},
-					Timeout:   10 * time.Second,
-				}
-			} else {
-				// this does not work
-				httpClient = http.DefaultClient
-			}
-			for i := 0; i < 10000; i++ {
-				if i%1000 == 0 {
-					log.Println(i)
-				}
-				SendRequest(httpClient)
-			}
-			waiter.Add(-1)
-		}()
-	}
-	waiter.Wait()
-}
-
-func
-main() {
-	go http.ListenAndServe(":8080", nil)
-	isGood := false
-	//isGood = true
-	SendAlotRequests(isGood)
 }

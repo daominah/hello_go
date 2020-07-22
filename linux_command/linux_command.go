@@ -8,7 +8,7 @@ import (
 
 func main() {
 	//cmd := exec.Command("ls", "-l")
-	cmd := exec.Command("pwd", "-l")
+	cmd := exec.Command("pwd")
 	//cmd := exec.Command("fuck", "-l")
 
 	var outBuf, errBuf bytes.Buffer
