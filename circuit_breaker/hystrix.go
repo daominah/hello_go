@@ -81,3 +81,14 @@ func (d DatabaseMock) ReadHistory() ([]string, error) {
 	time.Sleep(exeDur)
 	return []string{"row2", "row1", "row0"}, nil
 }
+
+type DatabaseMock2 struct{}
+
+func (d DatabaseMock2) ReadHistory() ([]string, error) {
+	w, err := http.Get("https://google.com.vn")
+	if err != nil {
+		return nil, err
+	}
+	w.Body.Close()
+	return []string{"row2", "row1", "row0"}, nil
+}
