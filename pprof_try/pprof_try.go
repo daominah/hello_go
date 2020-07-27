@@ -14,7 +14,7 @@ func main() {
 	log.SetFlags(log.Lshortfile | log.Lmicroseconds)
 
 	// cpu prof
-	file, err := os.Create("cpu.prof")
+	file, err := os.Create("cpu.out")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -27,7 +27,7 @@ func main() {
 
 	// mem prof
 	defer func() {
-		file2, err := os.Create("mem.prof")
+		file2, err := os.Create("mem.out")
 		if err != nil {
 			log.Fatal(err)
 		}
