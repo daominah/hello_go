@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-const cwd = "/home/tungdt/go/src/github.com/daominah/hello_go/http_request_form_data"
+const cwd = "/home/tungdt/go/src/github.com/daominah/hello_go/http_form_data"
 
 func main() {
 	log.SetFlags(log.Lshortfile)
@@ -25,15 +25,17 @@ func main() {
 	}()
 
 	req := createPostFilesReq(map[string]string{
-		"file1": cwd + "/file1.jpg",
-		"file2": cwd + "/file2.txt",
+		"files0": cwd + "/files0.txt",
+		"files1": cwd + "/files1.jpg",
 	})
 	_, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	time.Sleep(100 * time.Millisecond)
+	_ = time.Sleep
+	//time.Sleep(100 * time.Millisecond)
+	select {}
 }
 
 // filePaths map form key (server read file by this key) to filePath
@@ -72,20 +74,31 @@ func fileHandler() *http.ServeMux {
 	h := http.NewServeMux()
 	h.HandleFunc(
 		"/", func(w http.ResponseWriter, r *http.Request) {
+			reqStr, _ := httputil.DumpRequest(r, true)
+			log.Printf("received request: %s\n", reqStr)
 			maxMemory := 100 * 1024 * 1024 // 100MB
 			r.ParseMultipartForm(int64(maxMemory))
-			file, _, err := r.FormFile("file2")
+			file, _, err := r.FormFile("files0")
 			if err != nil {
-				log.Fatal(err)
+				log.Println(err)
+				return
 			}
 			defer file.Close()
 			data, err := ioutil.ReadAll(file)
 			if err != nil {
-				log.Fatal(err)
+				log.Println(err)
+				return
 			}
-			targetFile := cwd + "/savedFile2.txt"
+			targetFile := cwd + "/savedFiles0.txt"
 			err = ioutil.WriteFile(targetFile, data, 0644)
 			log.Printf("wrote file %v: %v\n", targetFile, err)
+
+			//# CORS spec: Your server will need to validate the origin header
+			// and then you can echo the origin value in the response header
+			w.Header().Set("Access-Control-Allow-Origin",
+				"*")
+			w.WriteHeader(200)
+			w.Write([]byte("received file"))
 		},
 	)
 	return h
