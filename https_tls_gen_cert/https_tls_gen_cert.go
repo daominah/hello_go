@@ -4,9 +4,9 @@ package main
 // Copyright 2009 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-// +build ignore
 // Generate a self-signed X.509 certificate for a TLS server. Outputs to
 // 'cert.pem' and 'key.pem' and will overwrite existing files.
+
 import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
@@ -15,7 +15,6 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
-	"flag"
 	"fmt"
 	"log"
 	"math/big"
@@ -25,58 +24,30 @@ import (
 	"time"
 )
 
-var (
-	host       = flag.String("host", "", "Comma-separated hostnames and IPs to generate a certificate for")
-	validFrom  = flag.String("start-date", "", "Creation date formatted as Jan 1 15:04:05 2011")
-	validFor   = flag.Duration("duration", 365*24*time.Hour, "Duration that certificate is valid for")
-	isCA       = flag.Bool("ca", true, "whether this cert should be its own Certificate Authority")
-	rsaBits    = flag.Int("rsa-bits", 2048, "Size of RSA key to generate. Ignored if --ecdsa-curve is set")
-	ecdsaCurve = flag.String("ecdsa-curve", "", "ECDSA curve to use to generate a key. Valid values are P224, P256 (recommended), P384, P521")
-)
-
-func init() {
-	host1 := "*"
-	validFrom1 := "Jan 1 00:00:00 2018"
-	validFor1 := 10 * 365 * 24 * time.Hour
-	host = &host1
-	validFrom = &validFrom1
-	validFor = &validFor1
-}
-func publicKey(priv interface{}) interface{} {
-	switch k := priv.(type) {
-	case *rsa.PrivateKey:
-		return &k.PublicKey
-	case *ecdsa.PrivateKey:
-		return &k.PublicKey
-	default:
-		return nil
-	}
-}
-func pemBlockForKey(priv interface{}) *pem.Block {
-	switch k := priv.(type) {
-	case *rsa.PrivateKey:
-		return &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(k)}
-	case *ecdsa.PrivateKey:
-		b, err := x509.MarshalECPrivateKey(k)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Unable to marshal ECDSA private key: %v", err)
-			os.Exit(2)
-		}
-		return &pem.Block{Type: "EC PRIVATE KEY", Bytes: b}
-	default:
-		return nil
-	}
-}
 func main() {
-	flag.Parse()
-	if len(*host) == 0 {
-		log.Fatalf("Missing required --host parameter")
+	// input
+	var (
+		// comma-separated hostnames and IPs to generate a certificate for
+		host      = "127.0.0.1"
+		validFrom = "2015-08-20"
+		validFor  = 10 * 365 * 24 * time.Hour
+		// whether this cert should be its own Certificate Authority
+		isCA = true
+		// Size of RSA key to generate. Ignored if ecdsaCurve is set
+		rsaBits = 4096
+		// gen key with ECDSA. Values:P224, P256 (recommended), P384, P521
+		ecdsaCurve = ""
+	)
+
+	// process
+	if len(host) == 0 {
+		log.Fatalf("missing required host parameter")
 	}
 	var priv interface{}
 	var err error
-	switch *ecdsaCurve {
+	switch ecdsaCurve {
 	case "":
-		priv, err = rsa.GenerateKey(rand.Reader, *rsaBits)
+		priv, err = rsa.GenerateKey(rand.Reader, rsaBits)
 	case "P224":
 		priv, err = ecdsa.GenerateKey(elliptic.P224(), rand.Reader)
 	case "P256":
@@ -86,23 +57,22 @@ func main() {
 	case "P521":
 		priv, err = ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
 	default:
-		fmt.Fprintf(os.Stderr, "Unrecognized elliptic curve: %q", *ecdsaCurve)
-		os.Exit(1)
+		err = fmt.Errorf("unrecognized elliptic curve: %q", ecdsaCurve)
 	}
 	if err != nil {
 		log.Fatalf("failed to generate private key: %s", err)
 	}
 	var notBefore time.Time
-	if len(*validFrom) == 0 {
+	if len(validFrom) == 0 {
 		notBefore = time.Now()
 	} else {
-		notBefore, err = time.Parse("Jan 2 15:04:05 2006", *validFrom)
+		notBefore, err = time.Parse("2006-01-02", validFrom)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Failed to parse creation date: %s\n", err)
 			os.Exit(1)
 		}
 	}
-	notAfter := notBefore.Add(*validFor)
+	notAfter := notBefore.Add(validFor)
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
 	if err != nil {
@@ -119,7 +89,7 @@ func main() {
 		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
 		BasicConstraintsValid: true,
 	}
-	hosts := strings.Split(*host, ",")
+	hosts := strings.Split(host, ",")
 	for _, h := range hosts {
 		if ip := net.ParseIP(h); ip != nil {
 			template.IPAddresses = append(template.IPAddresses, ip)
@@ -127,7 +97,7 @@ func main() {
 			template.DNSNames = append(template.DNSNames, h)
 		}
 	}
-	if *isCA {
+	if isCA {
 		template.IsCA = true
 		template.KeyUsage |= x509.KeyUsageCertSign
 	}
@@ -152,4 +122,30 @@ func main() {
 	pem.Encode(keyOut, pemBlockForKey(priv))
 	keyOut.Close()
 	log.Print("written key.pem\n")
+}
+
+func publicKey(priv interface{}) interface{} {
+	switch k := priv.(type) {
+	case *rsa.PrivateKey:
+		return &k.PublicKey
+	case *ecdsa.PrivateKey:
+		return &k.PublicKey
+	default:
+		return nil
+	}
+}
+func pemBlockForKey(priv interface{}) *pem.Block {
+	switch k := priv.(type) {
+	case *rsa.PrivateKey:
+		return &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(k)}
+	case *ecdsa.PrivateKey:
+		b, err := x509.MarshalECPrivateKey(k)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Unable to marshal ECDSA private key: %v", err)
+			os.Exit(2)
+		}
+		return &pem.Block{Type: "EC PRIVATE KEY", Bytes: b}
+	default:
+		return nil
+	}
 }

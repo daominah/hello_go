@@ -7,9 +7,6 @@ import (
 	"github.com/tealeg/xlsx"
 )
 
-func init() {
-}
-
 func XPrintRow(row *xlsx.Row) {
 	cellStrs := []string{}
 	for _, cell := range row.Cells {
