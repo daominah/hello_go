@@ -11,11 +11,11 @@ import (
 	"github.com/afex/hystrix-go/hystrix"
 )
 
-func main() {
+func main0() {
 	// web view circuit breaker metric in rolling window (10 seconds)
 	hystrixStreamHandler := hystrix.NewStreamHandler()
 	hystrixStreamHandler.Start()
-	go http.ListenAndServe(":20891", hystrixStreamHandler)
+	go http.ListenAndServe(":20211", hystrixStreamHandler)
 
 	// config the circuit breaker
 	command0 := "ReadHistory"
