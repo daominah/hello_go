@@ -8,17 +8,10 @@ import (
 	"strings"
 
 	"github.com/mywrap/log"
+	"github.com/mywrap/textproc"
 )
 
-type Response struct {
-	RequestId string
-	Rows      interface{}
-}
-type ResponseGzip struct {
-	RequestId   string
-	RowsGzipped []byte
-}
-
+// obj can be a string
 func compressGzip(obj interface{}) ([]byte, error) {
 	jsoned, err := json.Marshal(obj)
 	if err != nil {
@@ -39,27 +32,20 @@ func compressGzip(obj interface{}) ([]byte, error) {
 }
 
 func main() {
-	var nRows = 100
-	rows := make([]string, nRows)
-	for i, _ := range rows {
-		rows[i] = strings.Repeat("a", 100)
+	s0 := textproc.GenRandomWord(1000000, 1000000)
+	s1 := strings.Repeat("0123456789abcdefghik1011121314lmnopqrstu", 25000)
+	s2Bld := strings.Builder{}
+	for i := 0; true; i++ {
+		s2Bld.WriteString(fmt.Sprintf("%v", i))
+		if s2Bld.Len() >= 1000000 {
+			break
+		}
 	}
+	s2 := s2Bld.String()
 
-	resp := Response{
-		RequestId: "request0",
-		Rows:      rows,
+	for _, origin := range []string{s0, s1, s2} {
+		gzipped, _ := compressGzip(origin)
+		log.Printf("fullString length: origin: %v, gzipped: %v, ratio: %.3f",
+			len(origin), len(gzipped), float64(len(origin))/float64(len(gzipped)))
 	}
-	gzipped, err := compressGzip(resp.Rows)
-	if err != nil {
-		log.Fatalf("error compressGzip: %v", err)
-	}
-	respGzip := ResponseGzip{
-		RequestId:   resp.RequestId,
-		RowsGzipped: gzipped,
-	}
-
-	beauty1, _ := json.Marshal(respGzip)
-	log.Printf("beauty1: len: %v, body: %s", len(beauty1), beauty1)
-	beauty0, _ := json.Marshal(resp)
-	log.Printf("beauty0: len: %v, body: %s", len(beauty0), beauty0[:100])
 }
