@@ -18,7 +18,7 @@ func main() {
 			"192.168.99.101:2379",
 			"192.168.99.102:2379",
 		},
-		DialTimeout: 30 * time.Second,
+		DialTimeout: 5 * time.Second,
 		Username:    "root",
 		Password:    "123qwe",
 	})
@@ -53,23 +53,29 @@ func main() {
 	log.Println("acquired lock for s1")
 
 	go func() {
-		log.Printf("s2 try to acquire the lock")
-		if err := m2.Lock(context.TODO()); err != nil {
-			log.Fatal(err)
+		for {
+			log.Printf("s2 try to acquire the lock")
+			if err := m2.Lock(context.TODO()); err != nil {
+				log.Printf("error s2 Lock: %v", err)
+				continue
+			}
+			log.Println("acquired lock for s2")
+			break
 		}
-		log.Println("acquired lock for s2")
 	}()
 
-	time.Sleep(1 * time.Second)
+	time.Sleep(15 * time.Second)
 
-	// skip this if to simulate crash after lock
-	if !true {
+	// skip this to simulate crash after lock
+	for true {
 		log.Printf("s1 try to unlock")
 		if err := m1.Unlock(context.TODO()); err != nil {
-			log.Fatal(err)
+			log.Printf("error s1 Unlock: %v", err)
+			continue
 		}
 		log.Println("released lock for s1")
+		break
 	}
 
-	time.Sleep(100 * time.Second)
+	time.Sleep(3600 * time.Second)
 }
