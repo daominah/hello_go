@@ -17,8 +17,8 @@ func main() {
 			"192.168.99.102:2379",
 		},
 		DialTimeout: 30 * time.Second,
-		Username:    "root",
-		Password:    "123qwe",
+		//Username:    "root",
+		//Password:    "123qwe",
 	})
 	if err != nil {
 		log.Fatalf("toang: %v", err)
