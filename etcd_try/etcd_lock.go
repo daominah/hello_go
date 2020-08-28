@@ -5,8 +5,8 @@ import (
 	"log"
 	"time"
 
-	"go.etcd.io/etcd/clientv3"
-	"go.etcd.io/etcd/clientv3/concurrency"
+	"go.etcd.io/etcd/v3/clientv3"
+	"go.etcd.io/etcd/v3/clientv3/concurrency"
 )
 
 func main() {
@@ -19,8 +19,8 @@ func main() {
 			"192.168.99.102:2379",
 		},
 		DialTimeout: 5 * time.Second,
-		Username:    "root",
-		Password:    "123qwe",
+		//Username:    "root",
+		//Password:    "123qwe",
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -28,8 +28,7 @@ func main() {
 	defer cli.Close()
 	log.Printf("connected to etcd cluseter: %v", cli.Endpoints())
 
-	// all locks created by this session have a TTL of 3s
-	// (actual TTL value is at least the TTL)
+	// https://etcd.io/docs/v3.4.0/learning/api/#lease-api
 	s1, err := concurrency.NewSession(cli, concurrency.WithTTL(5))
 	if err != nil {
 		log.Fatal(err)
@@ -46,6 +45,7 @@ func main() {
 	defer s2.Close()
 	m2 := concurrency.NewMutex(s2, lockName)
 
+	time.Sleep(10 * time.Second)
 	log.Printf("s1 try to acquire the lock")
 	if err := m1.Lock(context.TODO()); err != nil {
 		log.Fatal(err)

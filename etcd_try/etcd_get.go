@@ -5,8 +5,7 @@ import (
 	"log"
 	"time"
 
-	"go.etcd.io/etcd/clientv3"
-	"go.etcd.io/etcd/etcdserver/api/v3rpc/rpctypes"
+	"go.etcd.io/etcd/v3/clientv3"
 )
 
 func main() {
@@ -26,19 +25,11 @@ func main() {
 	defer etcdCli.Close()
 
 	ctx, cxl := context.WithTimeout(context.Background(), 5*time.Second)
-	ret, err := etcdCli.Get(ctx, "key", clientv3.WithPrefix())
+	ret, err := etcdCli.Get(ctx, "/z")
+	//ret, err := etcdCli.Get(ctx, "/a", clientv3.WithPrefix())
 	cxl()
 	if err != nil {
-		switch err {
-		case context.Canceled:
-			log.Printf("canceled: %v", err)
-		case context.DeadlineExceeded:
-			log.Printf("timeout: %v", err)
-		case rpctypes.ErrEmptyKey:
-			log.Printf("client error: %v", err)
-		default:
-			log.Printf("bad etcd servers: %v", err)
-		}
+		log.Fatalf("error etcdCli Get: %v", err)
 	}
 	log.Printf("ret: %#v", ret)
 	for _, kv := range ret.Kvs {
