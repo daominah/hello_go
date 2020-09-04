@@ -10,3 +10,5 @@ main.go
 *.seq
 *.prof
 profile*.pdf
+
+crypto_try/*.key
