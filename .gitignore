@@ -12,3 +12,6 @@ main.go
 profile*.pdf
 
 crypto_try/*.key
+crypto_try/*.csr
+crypto_try/*.crt
+crypto_try/*.srl

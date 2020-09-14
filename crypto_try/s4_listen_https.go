@@ -15,8 +15,8 @@ func main() {
 	s := http.Server{Addr: ":43443", Handler: handler}
 	log.Print("listening on https://127.0.0.1:43443/")
 	err := s.ListenAndServeTLS(
-		"/home/tungdt/go/src/github.com/daominah/hello_go/crypto_openssl_gen_cert/myorg.crt",
-		"/home/tungdt/go/src/github.com/daominah/hello_go/crypto_openssl_gen_cert/myorg.key")
+		"/home/tungdt/go/src/github.com/daominah/hello_go/crypto_try/myorg0.crt",
+		"/home/tungdt/go/src/github.com/daominah/hello_go/crypto_try/myorg0.key")
 	if err != nil {
 		log.Fatal(err)
 	}
