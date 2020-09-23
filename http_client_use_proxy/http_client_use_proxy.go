@@ -11,9 +11,10 @@ import (
 	"h12.io/socks"
 )
 
-func main1() { // standard lib, does not support socks4
+func main() { // standard lib, does not support socks4
 	// https://gimmeproxy.com/api/getProxy?protocol=socks5
-	proxyUrl, err := url.Parse("socks5://20.184.5.198:1080")
+	//proxyUrl, err := url.Parse("socks5://20.184.5.198:1080")
+	proxyUrl, err := url.Parse("https://45.162.75.4:999")
 	cli := &http.Client{
 		Transport: &http.Transport{
 			// "http", "https", and "socks5" are supported
@@ -23,7 +24,7 @@ func main1() { // standard lib, does not support socks4
 		Timeout: 20 * time.Second,
 	}
 
-	r, _ := http.NewRequest("GET", "http://icanhazip.com/", nil)
+	r, _ := http.NewRequest("GET", "https://ipv4.icanhazip.com", nil)
 	status, body, err := httpDo(cli, r)
 	if err != nil {
 		log.Fatal(err)
@@ -31,11 +32,11 @@ func main1() { // standard lib, does not support socks4
 	log.Printf("status: %v, body:\n%s\n", status, body)
 }
 
-func main() {
-	dialFunc := socks.Dial("socks4://36.92.9.75:49420?timeout=15s")
+func main2() {
+	dialFunc := socks.Dial("socks5://129.227.149.131:1080?timeout=15s")
 	cli := &http.Client{Transport: &http.Transport{Dial: dialFunc}}
 
-	r, _ := http.NewRequest("GET", "http://136.144.56.255", nil)
+	r, _ := http.NewRequest("GET", "https://icanhazip.com", nil)
 	status, body, err := httpDo(cli, r)
 	if err != nil {
 		log.Fatal(err)
