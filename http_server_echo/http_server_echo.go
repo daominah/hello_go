@@ -19,7 +19,7 @@ func main() {
 				w.Write([]byte(fmt.Sprintf("error DumpRequest: %v", err)))
 				return
 			}
-			w.Write([]byte("Echo of your request:\n\n"))
+			w.Write([]byte(fmt.Sprintf("Echo req from %v:\n\n", r.RemoteAddr)))
 			w.Write(rDump)
 			log.Printf("respond to %v: %s\n", r.RemoteAddr, rDump)
 			log.Printf("end HandleFunc %v\n", r.RemoteAddr)
@@ -30,6 +30,7 @@ func main() {
 
 	server := &http.Server{Addr: ":20891", Handler: handler}
 	log.Println("listening on port ", server.Addr)
+	log.Println("example: http://127.0.0.1:20891/")
 	err := server.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)
