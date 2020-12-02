@@ -15,7 +15,10 @@ func main() {
 		log.Fatalf("error MarshalPKCS1PrivateKey: %v", err)
 	}
 	privateKeyBytes := x509.MarshalPKCS1PrivateKey(privateKey)
-	publicKeyBytes := x509.MarshalPKCS1PublicKey(&privateKey.PublicKey)
+	publicKeyBytes, err := x509.MarshalPKIXPublicKey(&privateKey.PublicKey)
+	if err != nil {
+		log.Fatalf("error MarshalPKIXPublicKey: %v", err)
+	}
 
 	outCAKeyFile := `crypto_try/generatedCAWithGo.key`
 	outCAKeyFileWriter, err := os.OpenFile(
@@ -41,7 +44,7 @@ func main() {
 		log.Fatalf("error OpenFile: %v", err)
 	}
 	err = pem.Encode(outPublicKeyFileWriter,
-		&pem.Block{Type: "RSA PUBLIC KEY", Bytes: publicKeyBytes})
+		&pem.Block{Type: "PUBLIC KEY", Bytes: publicKeyBytes})
 	if err != nil {
 		log.Fatalf("error pem_Encode: %v", err)
 	}

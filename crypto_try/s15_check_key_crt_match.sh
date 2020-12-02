@@ -7,4 +7,4 @@ openssl rsa --noout --modulus --in ${privatePath}
 
 # one of 2 following command is good, depend on cert format
 openssl x509 --inform pem --noout --modulus --in ${publicPath}
-openssl x509 --inform der --noout --modulus --in ${publicPath}
+#openssl x509 --inform der --noout --modulus --in ${publicPath}
