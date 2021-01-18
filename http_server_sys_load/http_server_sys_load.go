@@ -12,19 +12,32 @@ import (
 )
 
 func main() {
+	// CPU info, require `apt install -y sysstat`
+
 	var preCalcCPUUsage float64
-	// require:
 	go func() {
 		for {
 			cmd := exec.Command("mpstat", "5", "1")
 			stdout, err := cmd.Output()
 			if err != nil {
-				log.Fatalf("error: %v, plz run `apt install sysstat`", err)
+				log.Fatalf("error: %v, plz run `apt install -y sysstat`", err)
 			}
 			preCalcCPUUsage = parseMpstatToCPUUsage(string(stdout))
 			time.Sleep(1 * time.Second)
 		}
 	}()
+	cmd := exec.Command("/bin/bash", "-c", `cat /proc/cpuinfo | grep "model name" | uniq`)
+	cpuModelB, err0 := cmd.Output()
+	if err0 != nil {
+		log.Fatalf("error get cpu model: %v", err0)
+	}
+	cpuModel := strings.TrimSpace(string(cpuModelB))
+	beginIdx := strings.Index(cpuModel, ": ")
+	if beginIdx != -1 {
+		cpuModel = cpuModel[beginIdx+2:]
+	}
+
+	// listen HTTP, default port 21864
 
 	handler := http.NewServeMux()
 	handler.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -37,7 +50,8 @@ df -h | awk '$NF=="/"{printf "Disk Usage: %d/%dGB (%s)\n", $3,$2,$5}'`)
 			w.Write([]byte(fmt.Sprintf("error exec: %v", err)))
 			return
 		}
-		resp := fmt.Sprintf("%s\nCPU Usage: %.2f %%", stdout, preCalcCPUUsage)
+		resp := fmt.Sprintf("%sCPU Usage: %.2f%% of %v\n",
+			stdout, preCalcCPUUsage, cpuModel)
 		w.Write([]byte(resp))
 	})
 
