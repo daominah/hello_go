@@ -1,9 +1,13 @@
 package main
 
 import (
+	"encoding/csv"
 	"fmt"
+	"os"
 	"strings"
 
+	"github.com/mywrap/log"
+	"github.com/mywrap/textproc"
 	"github.com/tealeg/xlsx"
 )
 
@@ -19,22 +23,59 @@ func XPrintRow(row *xlsx.Row) {
 }
 
 func main() {
-	xlFile, err := xlsx.OpenFile("excel_read_write/people.xlsx")
+	xlFile, err := xlsx.OpenFile("/home/tungdt/Desktop/client_name_sub.xlsx")
 	if err != nil {
-		fmt.Println("ERROR", err)
-	} else {
-		for _, sheet := range xlFile.Sheets {
-			for i, row := range sheet.Rows {
-				if i == 0 {
-					fmt.Println("Fields: ")
-					XPrintRow(row)
-				} else {
-					XPrintRow(row)
-					for j, cell := range row.Cells {
-						fmt.Println("cell ", j, cell.String())
-					}
-				}
+		log.Fatal(err)
+	}
+	if len(xlFile.Sheets) == 0 {
+		log.Fatal("no sheets")
+	}
+
+	accs := make(map[string]string)
+	subAccs := make(map[string]string)
+
+	sheet0 := xlFile.Sheets[0]
+	for i, row := range sheet0.Rows {
+		if i == 0 {
+			fmt.Println("Fields: ")
+			XPrintRow(row)
+		} else {
+			if len(row.Cells) != 3 {
+				continue
 			}
+			acc, name, subAcc := row.Cells[0].String(), row.Cells[1].String(), row.Cells[2].String()
+			acc, name, subAcc = strings.TrimSpace(acc), strings.TrimSpace(name), strings.TrimSpace(subAcc)
+			name = textproc.RemoveVietnamDiacritic(name)
+			accs[acc] = name
+			subAccs[subAcc] = name
+		}
+
+		//if i == 10 {
+		//	break
+		//}
+	}
+
+	rows := make([][]string, 0)
+	for k, v := range accs {
+		rows = append(rows, []string{k, v})
+	}
+	for k, v := range subAccs {
+		rows = append(rows, []string{k, v})
+	}
+	log.Debugf("%#v", rows)
+
+	f, _ := os.OpenFile("/home/tungdt/Desktop/names.csv",
+		os.O_TRUNC|os.O_CREATE|os.O_RDWR,
+		0644)
+	w := csv.NewWriter(f)
+	for _, record := range rows {
+		if err := w.Write(record); err != nil {
+			log.Fatal("error writing record to csv:", err)
 		}
 	}
+	w.Flush()
+	if err := w.Error(); err != nil {
+		log.Fatalf("error Flush: %v", err)
+	}
+	log.Printf("ok")
 }
