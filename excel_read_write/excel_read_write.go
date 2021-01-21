@@ -6,6 +6,8 @@ import (
 	"os"
 	"strings"
 
+	"sort"
+
 	"github.com/mywrap/log"
 	"github.com/mywrap/textproc"
 	"github.com/tealeg/xlsx"
@@ -46,6 +48,8 @@ func main() {
 			acc, name, subAcc := row.Cells[0].String(), row.Cells[1].String(), row.Cells[2].String()
 			acc, name, subAcc = strings.TrimSpace(acc), strings.TrimSpace(name), strings.TrimSpace(subAcc)
 			name = textproc.RemoveVietnamDiacritic(name)
+			name = strings.ToUpper(name)
+			name = strings.ReplaceAll(name, `"`, ``)
 			accs[acc] = name
 			subAccs[subAcc] = name
 		}
@@ -62,6 +66,7 @@ func main() {
 	for k, v := range subAccs {
 		rows = append(rows, []string{k, v})
 	}
+	sort.Sort(SortByAcc(rows))
 	log.Debugf("%#v", rows)
 
 	f, _ := os.OpenFile("/home/tungdt/Desktop/names.csv",
@@ -78,4 +83,15 @@ func main() {
 		log.Fatalf("error Flush: %v", err)
 	}
 	log.Printf("ok")
+}
+
+type SortByAcc [][]string
+
+func (a SortByAcc) Len() int      { return len(a) }
+func (a SortByAcc) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a SortByAcc) Less(i, j int) bool {
+	if len(a[i]) < 1 || len(a[j]) < 1 {
+		return false
+	}
+	return a[i][0] < a[j][0]
 }
