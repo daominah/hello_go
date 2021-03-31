@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -12,13 +13,14 @@ import (
 	"time"
 )
 
-const cwd = "/home/tungdt/go/src/github.com/daominah/hello_go/http_form_data"
+const cwd = "/home/tungdt/go/src/github.com/daominah/hello_go/http_client_server_form_data"
+const listen = ":20892"
 
 func main() {
 	log.SetFlags(log.Lshortfile)
 
 	go func() {
-		err := http.ListenAndServe(":20891", fileHandler())
+		err := http.ListenAndServe(listen, fileHandler())
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -59,7 +61,8 @@ func createPostFilesReq(filePaths map[string]string) *http.Request {
 	}
 	writer.Close()
 
-	req, _ := http.NewRequest("POST", "http://localhost:20891/", body)
+	req, _ := http.NewRequest("POST",
+		fmt.Sprintf("http://localhost%v/", listen), body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 
 	if !true {
