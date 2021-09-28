@@ -7,7 +7,7 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/daominah/hnx_hose_market/pkg/driver/mongodb"
+	"github.com/mywrap/mongodb"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -21,8 +21,8 @@ func main() {
 	collHundred := "hundred"
 	collBillion := "billion"
 	_, _ = collBillion, collHundred
-	conf := &mongodb.Config{Host: "127.0.0.1", Port: "27017", NameDb: dbName}
-	dbPool, err := mongodb.OpenDbPool(conf)
+	conf := mongodb.Config{Host: "127.0.0.1", Port: "27017", Database: dbName}
+	dbPool, err := mongodb.Connect(conf)
 	if err != nil {
 		log.Fatalf("error when open mongodb db: %v", err)
 	}

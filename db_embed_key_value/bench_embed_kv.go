@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/daominah/gomicrokit/log"
+	"github.com/mywrap/log"
 )
 
 type Sequencer interface {

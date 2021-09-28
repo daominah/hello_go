@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 
 	"cloud.google.com/go/translate"
-	"github.com/pkg/errors"
 	"golang.org/x/text/language"
 )
 
@@ -23,11 +23,11 @@ func NewTranslator(targetLanguage string) (*Translator, error) {
 		"/home/tungdt/go/src/github.com/daominah/google_application_credentials.json")
 	targetLangTag, err := language.Parse(targetLanguage)
 	if err != nil {
-		return nil, errors.Errorf("error when Parse %v: %v", targetLanguage, err)
+		return nil, fmt.Errorf("error when Parse %v: %v", targetLanguage, err)
 	}
 	googleClient, err := translate.NewClient(context.Background())
 	if err != nil {
-		return nil, errors.Errorf("error when NewClient: %v", err)
+		return nil, fmt.Errorf("error when NewClient: %v", err)
 	}
 	return &Translator{targetLanguage: targetLangTag, googleClient: googleClient}, nil
 }
@@ -36,7 +36,7 @@ func (t Translator) TranslateMany(originTexts []string) ([]string, error) {
 	targets, err := t.googleClient.Translate(
 		context.Background(), originTexts, t.targetLanguage, nil)
 	if err != nil {
-		return nil, errors.Errorf("error when Translate: %v", err)
+		return nil, fmt.Errorf("error when Translate: %v", err)
 	}
 	ret := make([]string, len(targets))
 	for i, targetText := range targets {
