@@ -220,48 +220,48 @@ Difference between goroutines vs operating system threads?
 
 What do you do if your program always uses 100% CPU or consumes more RAM day by day?
 
-<!--## Hint-->
+## Hint
 
-<!--#### 1. Sending or receiving from a nil channel-->
+#### 1. Sending or receiving from a nil channel
 
-<!--#### 2. App can exit with running goroutines-->
+#### 2. App can exit with running goroutines
 
-<!--#### 3. Value vs pointer variable-->
+#### 3. Value vs pointer variable
 
-<!--#### 4. Concurrent write-->
+#### 4. Concurrent write
 
-<!--#### 5. Loop variable in goroutine-->
+#### 5. Loop variable in goroutine
 
-<!--#### 6. Leaking goroutines-->
+#### 6. Leaking goroutines
 
-<!--#### 7. Check nil interface-->
+#### 7. Check nil interface
 
-<!--#### 8. Calling fmt.Sprintf in method Error or String-->
+#### 8. Calling fmt.Sprintf in method Error or String
 
-<!--#### 9. Difference between goroutines vs operating system threads?-->
+#### 9. Difference between goroutines vs operating system threads?
 
-<!--**Goroutines are much lighter than OS threads. You can run hundreds-->
-<!--of thousands of goroutines.** A new goroutine consumes 2KiB of memory-->
-<!--but the default stack size for a new thread on Linux x64 is 8 MiBs.-->
-<!--Go runtime multiplex executing functions onto a set of OS threads,-->
-<!--when a function blocks, the runtime automatically moves other functions-->
-<!--on the same OS thread to a different, runnable OS thread so they won't-->
-<!--be blocked. Programmers do not need to care about these complexities-->
-<!--of thread creation and management. Goroutines not only consume less -->
-<!--memory but also setup, teardown and switch faster than OS threads.-->
+**Goroutines are much lighter than OS threads. You can run hundreds
+of thousands of goroutines.** A new goroutine consumes 2KiB of memory
+but the default stack size for a new thread on Linux x64 is 8 MiBs.
+Go runtime multiplex executing functions onto a set of OS threads,
+when a function blocks, the runtime automatically moves other functions
+on the same OS thread to a different, runnable OS thread so they won't
+be blocked. Programmers do not need to care about these complexities
+of thread creation and management. Goroutines not only consume less 
+memory but also setup, teardown and switch faster than OS threads.
 
-<!--* [Go FAQ goroutine](https://golang.org/doc/faq#goroutines)-->
-<!--* [StackOverflow](https://stackoverflow.com/a/41906859/4097963)-->
-<!--* [Go runtime memory _StackMin](https://github.com/golang/go/blob/master/src/runtime/stack.go)-->
+* [Go FAQ goroutine](https://golang.org/doc/faq#goroutines)
+* [StackOverflow](https://stackoverflow.com/a/41906859/4097963)
+* [Go runtime memory _StackMin](https://github.com/golang/go/blob/master/src/runtime/stack.go)
 
-<!--#### 10. What do you do if your program always uses 100% CPU or consumes more RAM day by day?-->
+#### 10. What do you do if your program always uses 100% CPU or consumes more RAM day by day?
 
-<!--Short answer: use package [net/http/pprof](https://pkg.go.dev/net/http/pprof)-->
-<!--to detect where is the bad code.-->
+Short answer: use package [net/http/pprof](https://pkg.go.dev/net/http/pprof)
+to detect where is the bad code.
 
-<!--Basic pprof commands:-->
+Basic pprof commands:
 
-<!--* `pdf`: draw the top N functions that use the most amount of resource-->
-  <!--to file `profile*.pdf`-->
-<!--* `list {functionName}`: show resource usage for each line of code in a function-->
-<!--* `top{N}`: show the top N functions that use the most amount of resource -->
+* `pdf`: draw the top N functions that use the most amount of resource
+  to file `profile*.pdf`
+* `list {functionName}`: show resource usage for each line of code in a function
+* `top{N}`: show the top N functions that use the most amount of resource 
