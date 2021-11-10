@@ -1,22 +1,21 @@
 package main
 
 import (
-	"context"
 	"fmt"
 )
 
 func main() {
 	a := 0
-	ctx, cxl := context.WithCancel(context.Background())
+	done := make(chan bool)
 	go func() {
-		defer cxl()
-		for i := 0; i < 1000; i++ {
+		for i := 0; i < 100000; i++ {
 			a += 1
 		}
+		done <- true
 	}()
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 100000; i++ {
 		a += 1
 	}
-	<-ctx.Done()
+	<-done
 	fmt.Println(a)
 }
