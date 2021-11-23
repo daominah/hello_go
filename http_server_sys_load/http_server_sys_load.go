@@ -11,13 +11,27 @@ import (
 	"time"
 )
 
-func main() {
-	// CPU info, require `apt install -y sysstat`
+func parseColonSeparated(s string) map[string]string {
+	ret := make(map[string]string)
+	for _, line := range strings.Split(s, "\n") {
+		beginIdx := strings.Index(line, ":")
+		if beginIdx == -1 || beginIdx+1 > len(line) {
+			continue
+		}
+		key := strings.TrimSpace(line[:beginIdx])
+		val := strings.TrimSpace(line[beginIdx+1:])
+		//println("__________", key, "__________", val)
+		ret[key] = val
+	}
+	return ret
+}
 
+func main() {
+	// CPU average load, require `apt install -y sysstat`
 	var preCalcCPUUsage float64
 	go func() {
 		for {
-			cmd := exec.Command("mpstat", "5", "1")
+			cmd := exec.Command("mpstat", "1", "1")
 			stdout, err := cmd.Output()
 			if err != nil {
 				log.Fatalf("error: %v, plz run `apt install -y sysstat`", err)
@@ -26,19 +40,21 @@ func main() {
 			time.Sleep(1 * time.Second)
 		}
 	}()
-	cmd := exec.Command("/bin/bash", "-c", `cat /proc/cpuinfo | grep "model name" | uniq`)
-	cpuModelB, err0 := cmd.Output()
+
+	// CPU model
+	cmd := exec.Command("/bin/bash", "-c", `lscpu`)
+	lscpuStdout, err0 := cmd.Output()
 	if err0 != nil {
 		log.Fatalf("error get cpu model: %v", err0)
 	}
-	cpuModel := strings.TrimSpace(string(cpuModelB))
-	beginIdx := strings.Index(cpuModel, ": ")
-	if beginIdx != -1 {
-		cpuModel = cpuModel[beginIdx+2:]
-	}
+	cpuInfos := parseColonSeparated(string(lscpuStdout))
+	cpuModel := cpuInfos["Model name"]
+	nSockets, _ := strconv.Atoi(cpuInfos["Socket(s)"])
+	nCoresPerSocket, _ := strconv.Atoi(cpuInfos["Core(s) per socket"])
+	nPhysicalCores := nSockets * nCoresPerSocket
+	cpuInfosStr := fmt.Sprintf("%v physical cores (%v)", nPhysicalCores, cpuModel)
 
 	// listen HTTP, default port 21864
-
 	handler := http.NewServeMux()
 	handler.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -52,7 +68,7 @@ df -h | awk '$NF=="/"{printf "Disk Usage: %d/%dGB (%s)\n", $3,$2,$5}'`)
 			return
 		}
 		resp := fmt.Sprintf("%sCPU Usage: %.2f%% of %v\n",
-			stdout, preCalcCPUUsage, cpuModel)
+			stdout, preCalcCPUUsage, cpuInfosStr)
 		w.Write([]byte(resp))
 	})
 
