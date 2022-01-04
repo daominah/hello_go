@@ -1,63 +1,62 @@
 package main
 
 import (
-	"fmt"
-	"io/ioutil"
-	"log"
+	"crypto/tls"
+	"io"
+	"math/rand"
 	"net/http"
 	"net/url"
 	"time"
 
-	"h12.io/socks"
+	"github.com/mywrap/log"
 )
 
-func main() { // standard lib, does not support socks4
-	// https://gimmeproxy.com/api/getProxy?protocol=socks5
-	//proxyUrl, err := url.Parse("socks5://20.184.5.198:1080")
-	proxyUrl, err := url.Parse("https://45.162.75.4:999")
-	cli := &http.Client{
+func main() {
+	proxies := []string{
+		"http://108.165.189.7:17654",
+		"http://108.165.189.55:30410",
+		"http://108.165.188.182:25255",
+		"http://108.165.188.248:17799",
+		"http://108.165.189.91:10921",
+	}
+	rand.Seed(time.Now().UnixNano())
+
+	httpClient := &http.Client{
+		Timeout: 60 * time.Second,
 		Transport: &http.Transport{
-			// "http", "https", and "socks5" are supported
-			Proxy:           http.ProxyURL(proxyUrl),
-			MaxConnsPerHost: 6,
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+			Proxy: func(request *http.Request) (*url.URL, error) {
+				chosen := proxies[rand.Intn(len(proxies))]
+				return url.Parse(chosen)
+			},
 		},
-		Timeout: 20 * time.Second,
 	}
-
-	r, _ := http.NewRequest("GET", "https://ipv4.icanhazip.com", nil)
-	status, body, err := httpDo(cli, r)
+	r, err := http.NewRequest("GET", "https://ipv4.icanhazip.com", nil)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("status: %v, body:\n%s\n", status, body)
-}
 
-func main2() {
-	dialFunc := socks.Dial("socks5://129.227.149.131:1080?timeout=15s")
-	cli := &http.Client{Transport: &http.Transport{Dial: dialFunc}}
-
-	r, _ := http.NewRequest("GET", "https://icanhazip.com", nil)
-	status, body, err := httpDo(cli, r)
-	if err != nil {
-		log.Fatal(err)
+	if true {
+		w, err := httpClient.Do(r)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer w.Body.Close()
+		body, err := io.ReadAll(w.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Printf("status: %v, body: %s", w.Status, body)
+	} else {
+		w, err := httpClient.Transport.RoundTrip(r)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer w.Body.Close()
+		body, err := io.ReadAll(w.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Printf("status: %v, body: %s", w.Status, body)
 	}
-	log.Printf("status: %v, body:\n%s\n", status, body)
-}
-
-func httpDo(cli *http.Client, r *http.Request) (
-	respStatus string, respBody []byte, retErr error) {
-	w, err := cli.Do(r)
-	if err != nil {
-		retErr = fmt.Errorf("error client Do: %v", err)
-		return
-	}
-	defer w.Body.Close()
-	respStatus = fmt.Sprintf("%v: %v", w.StatusCode, w.Status)
-	respBytes, err := ioutil.ReadAll(w.Body)
-	if err != nil {
-		retErr = fmt.Errorf("error ioutil ReadAll: %v", err)
-		return
-	}
-	respBody = respBytes
-	return
 }
