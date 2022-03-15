@@ -22,7 +22,7 @@ func main() {
 			mu.Lock()
 			cacheSystemLoad = tmp
 			mu.Unlock()
-			time.Sleep(100 * time.Millisecond)
+			time.Sleep(1 * time.Second)
 		}
 	}()
 

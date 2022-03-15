@@ -8,11 +8,11 @@ import (
 )
 
 // based on command "df", example result:
-// "68.4/112.7 GiB (65%)"
+// "Disk Usage: 68.4/112.7 GiB (65%)"
 func GetDiskUsage() string {
 	cmd := exec.Command("/bin/bash", "-c",
 		`df -BM | awk '$NF=="/"{printf "Disk Usage: %.1f/%.1f GiB (%s)\n", $3/1024,$2/1024,$5}'`)
-	stdout, err := cmd.Output()
+	stdout, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Sprintf("error GetDiskUsage: %v", err)
 	}
@@ -20,11 +20,11 @@ func GetDiskUsage() string {
 }
 
 // based on command "free -m", example result:
-// "Memory Usage: 8248/15990 MB (51.58%)"
+// "Memory Usage: 8248/15990 MiB (51.58%)"
 func GetMemoryUsage() string {
 	cmd := exec.Command("/bin/bash", "-c",
-		`free -m | awk 'NR==2{printf "Memory Usage: %s/%s MB (%.2f%%)\n", $3,$2,$3*100/$2 }'`)
-	stdout, err := cmd.Output()
+		`free -m | awk 'NR==2{printf "Memory Usage: %s/%s MiB (%.2f%%)\n", $3,$2,$3*100/$2 }'`)
+	stdout, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Sprintf("error GetMemoryUsage: %v", err)
 	}
@@ -36,7 +36,7 @@ func GetMemoryUsage() string {
 // "CPU Usage: 12.06%"
 func GetCPUAverageUsage() string {
 	cmd := exec.Command("mpstat", "1", "1")
-	stdoutB, err := cmd.Output()
+	stdoutB, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Sprintf("error GetCPUAverageUsage: %v", err)
 	}
@@ -63,9 +63,9 @@ func GetCPUAverageUsage() string {
 // "16 cores (Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz, 2 socket)"
 func GetCPUModel() string {
 	cmd := exec.Command("/bin/bash", "-c", `lscpu`)
-	lscpuStdoutB, err := cmd.Output()
+	lscpuStdoutB, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Sprintf("error GetCPUModel: %v", err)
+		return fmt.Sprintf("error GetCPUModel: %v", err)
 	}
 	lscpuStdout := string(lscpuStdoutB)
 	//println(lscpuStdout)
