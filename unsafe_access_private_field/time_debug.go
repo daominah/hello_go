@@ -6,12 +6,20 @@ import (
 	"unsafe"
 )
 
+// this example accesses struct private fields
 func NewDebugTime(wall uint64, ext int64, loc *time.Location) time.Time {
 	ret := time.Time{}
-	// Since structs are organized in memory order, we can advance the pointer
+	/* definition of Time struct in standard library "time"
+	type Time struct {
+		wall uint64
+		ext  int64
+		loc *Location
+	}
+	*/
+	// since structs are organized in memory order, we can advance the pointer
 	// by field size until we're at the desired member, int is 8 bytes.
-	// If you wanted to alter the 1st field, you wouldn't advance the pointer
-	// at all, and simply would need to convert ptrTof to the type (*int)
+	// if you wanted to alter the 1st field, you wouldn't advance the pointer
+	// at all
 	ptrToT0 := unsafe.Pointer(&ret)
 	ptrToWall := (*uint64)(ptrToT0)
 	*ptrToWall = wall

@@ -19,7 +19,7 @@ func main() {
 	sum := int64(0)
 	beginTime := time.Now()
 
-	nWorkers := 4
+	nWorkers := 16
 	sumChan := make(chan int64, nWorkers)
 	for i := 0; i < nWorkers; i++ {
 		go func() { sumChan <- Sum(n / int64(nWorkers)) }()
@@ -31,6 +31,6 @@ func main() {
 	fmt.Println("dur:", time.Since(beginTime))
 	fmt.Println("sum:", sum)
 
-	// Results on Intel Core i5-8265U (nWorkers,dur):
-	// (1, 8s), (2, 4s), (4, 2s), (8, 2s). Why 8 CPUs still need 2s?
+	// Results on Intel Core i5-8265U (4 physical cores)
+	// (nWorkers,dur): (1, 8s), (2, 4s), (4, 2s), (8, 2s), (16, 2s)
 }
