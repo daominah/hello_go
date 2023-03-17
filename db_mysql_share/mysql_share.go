@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 	"log"
@@ -9,37 +8,37 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-sql-driver/mysql"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+	"gorm.io/gorm/logger"
 )
 
 func main() {
 	log.SetFlags(log.Lshortfile | log.Lmicroseconds)
-	_ = mysql.MySQLError{} // for auto import
 	// CREATE DATABASE test_concurrent CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 
-	mysqlHosts := []string{"10.100.50.101", "10.100.50.102"}
-	//mysqlHosts := []string{"127.0.0.1"}
+	//mysqlHosts := []string{"10.100.50.101", "10.100.50.102"} // group replication
+	mysqlHosts := []string{"127.0.0.1"}
 	runningHosts := make([]string, 0)
 
 	dbs := make(map[string]*gorm.DB)
 	for _, nodeHost := range mysqlHosts {
 		dataSource := fmt.Sprintf(
 			"%v:%v@tcp(%v:%v)/%v?charset=utf8mb4&parseTime=True&loc=Local",
-			"tungdt", "123qwe", nodeHost, "3306", "test_concurrent")
-		db, err := gorm.Open("mysql", dataSource)
+			"root", "123qwe", nodeHost, "3306", "test_concurrent")
+		db, err := gorm.Open(mysql.Open(dataSource),
+			&gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
 		if err != nil {
 			log.Println(err)
 			continue
 		}
 		runningHosts = append(runningHosts, nodeHost)
-		db.DB().SetMaxOpenConns(30) // MySQL default max connections = 150
-		db.LogMode(false)
 
 		// init a shared row
 		migrateRet := db.AutoMigrate(&Shared{})
-		if migrateRet.Error != nil {
-			log.Fatal(migrateRet.Error)
+		if migrateRet != nil {
+			log.Fatalf("error create table `shareds`: %v", migrateRet)
 		}
 		initRet := db.Save(&Shared{Key: SharedKey0, Val: 0})
 		if initRet.Error != nil {
@@ -58,15 +57,20 @@ func main() {
 	nTries := 0
 	mutex := &sync.Mutex{}
 	wg := sync.WaitGroup{}
+	limitGoroutines := make(chan bool, 40)
 	for i := 0; i < n; i++ {
 		wg.Add(1)
+		limitGoroutines <- true
 		go func() {
+			defer func() {
+				wg.Add(-1)
+				<-limitGoroutines
+			}()
 			host := runningHosts[rand.Intn(len(runningHosts))]
 			db, found := dbs[host]
 			if !found {
 				return
 			}
-			defer wg.Add(-1)
 			updated := 0
 			job := func() error {
 				var err error
@@ -104,16 +108,13 @@ type Shared struct {
 }
 
 func Incr(db *gorm.DB) (updatedValue int, err error) {
-	tx := db.BeginTx(context.Background(), &sql.TxOptions{
-		Isolation: sql.LevelRepeatableRead,
-		ReadOnly:  false,
-	})
+	tx := db.Begin(&sql.TxOptions{Isolation: sql.LevelReadCommitted, ReadOnly: false})
 	if tx.Error != nil {
 		err := fmt.Errorf("error when create tx: %v", tx.Error)
 		return 0, err
 	}
 	a := Shared{Key: SharedKey0}
-	findRet := tx.Set("gorm:query_option", "FOR UPDATE").Find(&a)
+	findRet := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&a)
 	if findRet.Error != nil {
 		err := fmt.Errorf("error when select: %v", findRet.Error)
 		tx.Rollback()

@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func main() {
+func _main() {
 	handler := http.NewServeMux()
 	handler.HandleFunc("/",
 		func(w http.ResponseWriter, r *http.Request) {

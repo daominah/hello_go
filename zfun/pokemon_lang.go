@@ -13,7 +13,7 @@ import (
 	"golang.org/x/net/html"
 )
 
-func main() {
+func _main() {
 	langs, err := getAllProgLangs()
 	if err != nil {
 		log.Fatal(err)
@@ -28,7 +28,7 @@ func main() {
 			if dist > 2 {
 				continue
 			}
-			if float64(dist) / float64(gofast.MinInts(len(lang), len(pokemon))) >= 0.5 {
+			if float64(dist)/float64(gofast.MinInts(len(lang), len(pokemon))) >= 0.5 {
 				continue
 			}
 			log.Debugf("dist: %v, lang: %v, pokemon: %v",

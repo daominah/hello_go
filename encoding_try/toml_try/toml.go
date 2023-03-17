@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"strings"
 
@@ -20,7 +19,7 @@ func tomlToJson(tomled string) (string, error) {
 
 	bs, err := json.MarshalIndent(obj, "", "    ")
 	if err != nil {
-		return "", fmt.Errorf(err, "json encode: %v", err)
+		return "", fmt.Errorf("json encode: %v", err)
 	}
 	jsoned := string(bs)
 
@@ -102,14 +101,4 @@ func main() {
 		}
 		fmt.Println("jsoned:\n", jsoned)
 	}
-
-	bs, err := ioutil.ReadFile("/home/tungdt/go/src/github.com/daominah/translate/data_kingtalk/lang_pack_en.toml")
-	if err != nil {
-		log.Fatal(err)
-	}
-	j, err := tomlToJson(string(bs))
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Println("ngon", j)
 }

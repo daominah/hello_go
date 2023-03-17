@@ -1,9 +1,11 @@
 package main
 
+/*
+// require Go 1.17
+
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 
 	"cloud.google.com/go/translate"
@@ -45,6 +47,8 @@ func (t Translator) TranslateMany(originTexts []string) ([]string, error) {
 	return ret, nil
 }
 
+
+
 func main() {
 	//t, err := NewTranslator("vi")
 	t, err := NewTranslator("en")
@@ -58,3 +62,5 @@ func main() {
 	}
 	log.Println("translated:", translateds[0])
 }
+
+*/

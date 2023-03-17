@@ -14,6 +14,6 @@ func main() {
 		rotate := bits.RotateLeft8(b, iLeft+1)
 		fmt.Printf("digit index %v: rotate %08b", iLeft, rotate)
 		digit := rotate & 1
-		fmt.Printf(", digit index: %v\n", digit)
+		fmt.Printf(", digit: %v\n", digit)
 	}
 }

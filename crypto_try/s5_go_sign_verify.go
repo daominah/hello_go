@@ -13,7 +13,7 @@ import (
 	"log"
 )
 
-func main() {
+func __main() {
 	log.SetFlags(log.Lshortfile)
 
 	// read RSA private key from file

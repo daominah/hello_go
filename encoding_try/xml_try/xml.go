@@ -75,8 +75,8 @@ func main() {
 	}
 
 	beauty, _ := json.MarshalIndent(v, "", "    ")
-	log.Printf("beauty: %s\n", beauty)
+	log.Printf("beauty:\n%s\n", beauty)
 
 	myXMLDumped, _ := xml.MarshalIndent(v, "", "    ")
-	log.Printf("myXMLDumped: %s\n", myXMLDumped)
+	log.Printf("myXMLDumped:\n %s\n", myXMLDumped)
 }

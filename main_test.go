@@ -1,10 +1,10 @@
 package main
 
 import (
-	"testing"
 	"fmt"
+	"testing"
 )
 
 func TestCC(t *testing.T) {
-	fmt.Println(2/3)
+	fmt.Println(2 / 3)
 }
