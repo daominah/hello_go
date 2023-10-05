@@ -13,6 +13,7 @@ require (
 	github.com/mywrap/mongodb v0.2.2
 	github.com/mywrap/textproc v0.3.1
 	github.com/smartystreets/goconvey v1.7.2 // indirect
+	github.com/stretchr/testify v1.8.0
 	github.com/syndtr/goleveldb v1.0.0
 	go.mongodb.org/mongo-driver v1.11.2
 	golang.org/x/net v0.8.0
