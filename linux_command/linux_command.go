@@ -9,7 +9,7 @@ import (
 func main() {
 	//cmd := exec.Command("ls", "-l")
 	cmd := exec.Command("pwd")
-	//cmd := exec.Command("fuck", "-l")
+	//cmd := exec.Command("thisshouldnotbefound")
 
 	var outBuf, errBuf bytes.Buffer
 	cmd.Stdout, cmd.Stderr = &outBuf, &errBuf
