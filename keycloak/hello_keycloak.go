@@ -52,7 +52,7 @@ func main() {
 		rawAccessToken := r.Header.Get("Authorization")
 		parts := strings.Split(rawAccessToken, " ")
 		if len(parts) != 2 {
-			log.Printf("Authorization does not follow format `{token_type} {access_token}`, redirect to Keycloak login page")
+			log.Printf("Authorization does not follow format `{token_type} {access_token}`, maybe not logged in, redirect to Keycloak login page")
 			state := randomString()
 			http.SetCookie(w, &http.Cookie{
 				Name:     StateCookieName,
@@ -65,14 +65,16 @@ func main() {
 			return
 		}
 		accessToken := parts[1]
-		token, err := verifier.Verify(context.TODO(), accessToken)
+		idToken, err := verifier.Verify(context.TODO(), accessToken)
 		if err != nil {
-			errMsg := fmt.Sprintf("error verifier.Verify: %v, %+v", err, token)
+			errMsg := fmt.Sprintf("error verifier.Verify: %v", err)
 			log.Printf(errMsg)
 			http.Error(w, errMsg, http.StatusUnauthorized)
+			return
 		}
-		_ = token
-		w.Write([]byte("hello, you are logged in successfully"))
+		user, _ := parseIDToken(idToken)
+		log.Printf("user: %+v, idToken: %+v", user, parseFullIDToken(idToken))
+		w.Write([]byte(fmt.Sprintf("hello %v, you are logged in successfully", user.Email)))
 	})
 
 	http.HandleFunc("/valid-redirect-uri-after-login-keycloak", func(w http.ResponseWriter, r *http.Request) {
@@ -111,27 +113,15 @@ func main() {
 			http.Error(w, errMsg, http.StatusInternalServerError)
 			return
 		}
-		var idTokenDetail map[string]any
-		err = idToken.Claims(&idTokenDetail)
-		if err != nil {
-			errMsg := fmt.Sprintf("error idToken.Claims: %v", err)
-			log.Printf(errMsg)
-			http.Error(w, errMsg, http.StatusInternalServerError)
-			return
-		}
-		userEmail, ok := idTokenDetail["email"].(string)
-		if !ok {
-			errMsg := fmt.Sprintf("error missing 'email' in idToken.Claims: %#v", idTokenDetail["email"])
-			log.Printf(errMsg)
-			http.Error(w, errMsg, http.StatusInternalServerError)
-		}
-		log.Printf("userEmail: %v", userEmail)
+		userInfo, err := parseIDToken(idToken)
+		log.Printf("user email: %v", userInfo.Email)
+
 		resp := struct {
-			OAuth2Token   *oauth2.Token
-			IDTokenClaims map[string]any
+			OAuth2Token *oauth2.Token
+			IDToken     any
 		}{
-			OAuth2Token:   oauth2Token,
-			IDTokenClaims: idTokenDetail,
+			OAuth2Token: oauth2Token,
+			IDToken:     parseFullIDToken(idToken),
 		}
 		beauty, err := json.MarshalIndent(resp, "", "\t")
 		if err != nil {
@@ -160,3 +150,24 @@ func randomString() string {
 }
 
 const StateCookieName = "state_daominah"
+
+type MyUserInfo struct {
+	KeycloakUserID string `json:"sub"`
+	Email          string `json:"email"`
+	EmailVerified  string `json:"email_verified"`
+}
+
+func parseIDToken(idToken *oidc.IDToken) (MyUserInfo, error) {
+	var u MyUserInfo
+	err := idToken.Claims(&u)
+	if err != nil {
+		return u, fmt.Errorf("idToken.Claims: %v", err)
+	}
+	return u, nil
+}
+
+func parseFullIDToken(idToken *oidc.IDToken) map[string]any {
+	var u map[string]any
+	_ = idToken.Claims(&u)
+	return u
+}
