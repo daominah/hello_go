@@ -53,7 +53,7 @@ func main() {
 		parts := strings.Split(rawAccessToken, " ")
 		if len(parts) != 2 {
 			log.Printf("Authorization does not follow format `{token_type} {access_token}`, maybe not logged in, redirect to Keycloak login page")
-			state := randomString()
+			state := randomString(16)
 			http.SetCookie(w, &http.Cookie{
 				Name:     StateCookieName,
 				Value:    state,
@@ -61,6 +61,8 @@ func main() {
 				HttpOnly: true, // HttpOnly cookie cannot be read by JS
 				Secure:   r.TLS != nil,
 			})
+			authCodeURL := oauth2Config.AuthCodeURL(state)
+			log.Printf("authCodeURL: %v", authCodeURL)
 			http.Redirect(w, r, oauth2Config.AuthCodeURL(state), http.StatusFound)
 			return
 		}
@@ -142,8 +144,8 @@ func main() {
 	// curl -i -H "Authorization: Bearer ${at}" 'http://localhost:8181'
 }
 
-func randomString() string {
-	b := make([]byte, 16)
+func randomString(len int) string {
+	b := make([]byte, len)
 	_, _ = rand.Read(b)
 	r := hex.EncodeToString(b)
 	return r
