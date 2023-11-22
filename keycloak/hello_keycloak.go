@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"crypto/rand"
 	"encoding/hex"
@@ -8,6 +9,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -27,10 +29,8 @@ func main() {
 	kcClientSecret := "BE2E37zif7WTPq1eiznToeCuVHHmAW1L"
 	kcRedirect := "http://localhost:8181/valid-redirect-uri-after-login-keycloak" // redirect browser here after a successful login
 
-	// https://stackoverflow.com/questions/48855122/keycloak-adaptor-for-golang-application:
-
 	issuer := fmt.Sprintf("%v/realms/%v", kcAddress, kcRealm)
-	provider, err := oidc.NewProvider(context.TODO(), issuer)
+	oidcProvider, err := oidc.NewProvider(context.TODO(), issuer)
 	if err != nil {
 		panic(err)
 	}
@@ -39,14 +39,14 @@ func main() {
 		ClientID:     kcClientID,
 		ClientSecret: kcClientSecret,
 		RedirectURL:  kcRedirect,
-		Endpoint:     provider.Endpoint(),
+		Endpoint:     oidcProvider.Endpoint(),
 		Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
 	}
 	// Endpoint.AuthURL = realms/myrealm/protocol/openid-connect/auth
 
 	// SkipClientIDCheck bacause Keycloak token has "azp" field,
-	// OIDC specs about "azp", "aud" are confusing so just skip
-	verifier := provider.Verifier(&oidc.Config{SkipClientIDCheck: true})
+	// OIDC specs about "azp", "aud" are confusing so skip for now
+	verifier := oidcProvider.Verifier(&oidc.Config{SkipClientIDCheck: true})
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		rawAccessToken := r.Header.Get("Authorization")
@@ -61,9 +61,12 @@ func main() {
 				HttpOnly: true, // HttpOnly cookie cannot be read by JS
 				Secure:   r.TLS != nil,
 			})
-			authCodeURL := oauth2Config.AuthCodeURL(state)
-			log.Printf("authCodeURL: %v", authCodeURL)
-			http.Redirect(w, r, oauth2Config.AuthCodeURL(state), http.StatusFound)
+			codeFlowURL := oauth2Config.AuthCodeURL(state)
+			log.Printf("authCodeURL: %v", codeFlowURL)
+			tokenFlowURL := AuthImplicitFlowURL(oauth2Config, state)
+			log.Printf("tokenFlowURL: %v", tokenFlowURL)
+			loginURL := codeFlowURL
+			http.Redirect(w, r, loginURL, http.StatusFound)
 			return
 		}
 		accessToken := parts[1]
@@ -74,8 +77,8 @@ func main() {
 			http.Error(w, errMsg, http.StatusUnauthorized)
 			return
 		}
-		user, _ := parseIDToken(idToken)
-		log.Printf("user: %+v, idToken: %+v", user, parseFullIDToken(idToken))
+		user, _ := ParseIDToken(idToken)
+		log.Printf("user: %+v, idToken: %+v", user, ParseFullIDToken(idToken))
 		w.Write([]byte(fmt.Sprintf("hello %v, you are logged in successfully", user.Email)))
 	})
 
@@ -115,7 +118,7 @@ func main() {
 			http.Error(w, errMsg, http.StatusInternalServerError)
 			return
 		}
-		userInfo, err := parseIDToken(idToken)
+		userInfo, err := ParseIDToken(idToken)
 		log.Printf("user email: %v", userInfo.Email)
 
 		resp := struct {
@@ -123,7 +126,7 @@ func main() {
 			IDToken     any
 		}{
 			OAuth2Token: oauth2Token,
-			IDToken:     parseFullIDToken(idToken),
+			IDToken:     ParseFullIDToken(idToken),
 		}
 		beauty, err := json.MarshalIndent(resp, "", "\t")
 		if err != nil {
@@ -159,7 +162,7 @@ type MyUserInfo struct {
 	EmailVerified  string `json:"email_verified"`
 }
 
-func parseIDToken(idToken *oidc.IDToken) (MyUserInfo, error) {
+func ParseIDToken(idToken *oidc.IDToken) (MyUserInfo, error) {
 	var u MyUserInfo
 	err := idToken.Claims(&u)
 	if err != nil {
@@ -168,8 +171,30 @@ func parseIDToken(idToken *oidc.IDToken) (MyUserInfo, error) {
 	return u, nil
 }
 
-func parseFullIDToken(idToken *oidc.IDToken) map[string]any {
+func ParseFullIDToken(idToken *oidc.IDToken) map[string]any {
 	var u map[string]any
 	_ = idToken.Claims(&u)
 	return u
+}
+
+func AuthImplicitFlowURL(c oauth2.Config, state string) string {
+	var buf bytes.Buffer
+	buf.WriteString(c.Endpoint.AuthURL)
+	v := url.Values{"response_type": {"token"}, "client_id": {c.ClientID}}
+	if c.RedirectURL != "" {
+		v.Set("redirect_uri", c.RedirectURL)
+	}
+	if len(c.Scopes) > 0 {
+		v.Set("scope", strings.Join(c.Scopes, " "))
+	}
+	if state != "" {
+		v.Set("state", state)
+	}
+	if strings.Contains(c.Endpoint.AuthURL, "?") {
+		buf.WriteByte('&')
+	} else {
+		buf.WriteByte('?')
+	}
+	buf.WriteString(v.Encode())
+	return buf.String()
 }
