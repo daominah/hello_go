@@ -35,14 +35,17 @@ func main() {
 		panic(err)
 	}
 
+	tseScopes := strings.Split("openid email profile get:my-org:all create:bases:all", " ")
+	//tseScopes := strings.Split("openid email profile create:bases:all get:my-org-type:base put:my-org-type:base post:my-org-type-base:steps list:my-org-type-base:steps delete:my-org-type-base:steps list:my-org-type:base list:type-all:base post:my-org-type:base create:cases:all list:my-org-type-base:case get:my-org-type-base:case patch:my-org-type-base:case post:my-org-type-base:case get:my-org-type-base:analytic list:all:org list:my-org-type-base:notification create:users:all get:notification:all create:my-org:user list:my-org:type update:my-org:user get:types:all list:my-org:user list:all:type update:me:passwords create:types:all get:my-org-type-base:analytic-case list:my-org:tag post:my-org:tag get:my-org-type-base:analyticbyfield get:my-org-type-base:qualitative-feedback get:my-org:all put:my-org-type-base:case get:my-org-type-base:qualitative-feedback-all get:my-org:activity-report get:my-org:tag get:my-org:user post:case-delta:validation publish:my-org-type:base get:my-org-type-base:workflow post:my-org-type-base:workflow put:my-org-type-base:workflow delete:my-org-type-base:workflow post:my-org-type-base-workflow:action put:my-org-type-base-workflow:action list:my-org-type-base:workflow delete:my-org-type-base-workflow:action get:my-org-type-base-case:sync-status get:my-org-type-base:sync-status get:case:pass put:my-org-type:base-preferences", " ")
+	_ = tseScopes
 	oauth2Config := oauth2.Config{
 		ClientID:     kcClientID,
 		ClientSecret: kcClientSecret,
 		RedirectURL:  kcRedirect,
 		Endpoint:     oidcProvider.Endpoint(),
 		Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
+		//Scopes:       tseScopes,
 	}
-	// Endpoint.AuthURL = realms/myrealm/protocol/openid-connect/auth
 
 	// SkipClientIDCheck bacause Keycloak token has "azp" field,
 	// OIDC specs about "azp", "aud" are confusing so skip for now
@@ -62,9 +65,10 @@ func main() {
 				Secure:   r.TLS != nil,
 			})
 			codeFlowURL := oauth2Config.AuthCodeURL(state)
-			log.Printf("authCodeURL: %v", codeFlowURL)
+			//log.Printf("authCodeURL: %v", codeFlowURL)
 			tokenFlowURL := AuthImplicitFlowURL(oauth2Config, state)
 			log.Printf("tokenFlowURL: %v", tokenFlowURL)
+			_, _ = codeFlowURL, tokenFlowURL
 			loginURL := codeFlowURL
 			http.Redirect(w, r, loginURL, http.StatusFound)
 			return
@@ -95,9 +99,16 @@ func main() {
 			return
 		}
 
-		oauth2Token, err := oauth2Config.Exchange(context.TODO(), r.FormValue("code"))
+		if r.FormValue("error") != "" {
+			errMsg := fmt.Sprintf("error: %v\nerror_description:%v", r.FormValue("error"), r.FormValue("error_description"))
+			http.Error(w, errMsg, http.StatusInternalServerError)
+			return
+		}
+
+		oidcCode := r.FormValue("code")
+		oauth2Token, err := oauth2Config.Exchange(context.TODO(), oidcCode)
 		if err != nil {
-			errMsg := fmt.Sprintf("error oauth2Config.Exchange: %v", err)
+			errMsg := fmt.Sprintf("error oauth2Config.Exchange: %v, oidcCode: %v", err, oidcCode)
 			log.Printf(errMsg)
 			http.Error(w, errMsg, http.StatusInternalServerError)
 			return
@@ -121,11 +132,15 @@ func main() {
 		userInfo, err := ParseIDToken(idToken)
 		log.Printf("user email: %v", userInfo.Email)
 
+		accessToken, err := verifier.Verify(context.TODO(), oauth2Token.AccessToken)
+
 		resp := struct {
 			OAuth2Token *oauth2.Token
+			AccessToken any
 			IDToken     any
 		}{
 			OAuth2Token: oauth2Token,
+			AccessToken: ParseFullIDToken(accessToken),
 			IDToken:     ParseFullIDToken(idToken),
 		}
 		beauty, err := json.MarshalIndent(resp, "", "\t")
