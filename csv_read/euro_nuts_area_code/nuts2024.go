@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	result := make(map[Country]map[string]string) // map[Country]map[NUTSCode]AreaDescription
+	result := make(map[string]map[string]string) // map[country]map[lv1]map[lv2]map[lv3]areaDescription
 	r := csv.NewReader(strings.NewReader(AreaCodeNutsData))
 	r.Comma = ';'
 	for i := 0; true; i++ {
@@ -33,14 +33,13 @@ func main() {
 		if len(countryAlpha2) != 2 {
 			log.Printf("unexpected countryAlpha2 from: %+v", row)
 		}
-		country := CountryCodesInverse[CountryAlpha2(countryAlpha2)]
 		nutsCode := strings.TrimSpace(row[1])
 		areaDescription := strings.TrimSpace(row[2])
-		if country != "" && nutsCode != "" && areaDescription != "" {
-			if result[country] == nil {
-				result[country] = make(map[string]string)
+		if countryAlpha2 != "" && nutsCode != "" && areaDescription != "" {
+			if result[countryAlpha2] == nil {
+				result[countryAlpha2] = make(map[string]string)
 			}
-			result[country][nutsCode] = areaDescription
+			result[countryAlpha2][nutsCode] = areaDescription
 		}
 	}
 	beauty, err := json.MarshalIndent(result, "", "\t")
@@ -50,102 +49,7 @@ func main() {
 	log.Printf("resultCellToCarPlate:\n%s", beauty)
 }
 
-type Country string
-
-const (
-	Austria           Country = "Austria"
-	Belgium           Country = "Belgium"
-	BosniaHerzegovina Country = "BosniaHerzegovina" // Bosnia and Herzegovina
-	Bulgaria          Country = "Bulgaria"
-	Croatia           Country = "Croatia"
-	Cyprus            Country = "Cyprus"
-	Czechia           Country = "Czechia"
-	Denmark           Country = "Denmark"
-	Estonia           Country = "Estonia"
-	Finland           Country = "Finland"
-	France            Country = "France"
-	Germany           Country = "Germany"
-	Greece            Country = "Greece"
-	Hungary           Country = "Hungary"
-	Iceland           Country = "Iceland"
-	Ireland           Country = "Ireland"
-	Israel            Country = "Israel"
-	Italy             Country = "Italy"
-	Latvia            Country = "Latvia"
-	Lithuania         Country = "Lithuania"
-	Luxembourg        Country = "Luxembourg"
-	Malta             Country = "Malta"
-	Moldova           Country = "Moldova" // Moldova, Republic of
-	Montenegro        Country = "Montenegro"
-	Netherlands       Country = "Netherlands"    // Netherlands, Kingdom of the
-	NorthMacedonia    Country = "NorthMacedonia" // North Macedonia
-	Norway            Country = "Norway"
-	Poland            Country = "Poland"
-	Portugal          Country = "Portugal"
-	Romania           Country = "Romania"
-	Serbia            Country = "Serbia"
-	Slovakia          Country = "Slovakia"
-	Slovenia          Country = "Slovenia"
-	Spain             Country = "Spain"
-	Sweden            Country = "Sweden"
-	Switzerland       Country = "Switzerland"
-	Ukraine           Country = "Ukraine"
-	UnitedKingdom     Country = "UnitedKingdom" // United Kingdom of Great Britain and Northern Ireland
-)
-
-type CountryAlpha2 string
-
-// CountryCodes maps country name to country code alpha-2
-// source: https://github.com/lukes/ISO-3166-Countries-with-Regional-Codes/blob/master/all/all.csv
-var CountryCodes = map[Country]CountryAlpha2{
-	Austria:           "AT",
-	BosniaHerzegovina: "BA",
-	Belgium:           "BE",
-	Bulgaria:          "BG",
-	Croatia:           "HR",
-	Cyprus:            "CY",
-	Czechia:           "CZ",
-	Denmark:           "DK",
-	Estonia:           "EE",
-	Finland:           "FI",
-	France:            "FR",
-	Germany:           "DE",
-	Greece:            "GR",
-	Hungary:           "HU",
-	Iceland:           "IS",
-	Ireland:           "IE",
-	Israel:            "IL",
-	Italy:             "IT",
-	Latvia:            "LV",
-	Lithuania:         "LT",
-	Luxembourg:        "LU",
-	Malta:             "MT",
-	Moldova:           "MD",
-	Montenegro:        "ME",
-	Netherlands:       "NL",
-	NorthMacedonia:    "MK",
-	Norway:            "NO",
-	Poland:            "PL",
-	Portugal:          "PT",
-	Romania:           "RO",
-	Serbia:            "RS",
-	Slovakia:          "SK",
-	Slovenia:          "SI",
-	Spain:             "ES",
-	Sweden:            "SE",
-	Switzerland:       "CH",
-	Ukraine:           "UA",
-	UnitedKingdom:     "GB",
-}
-var CountryCodesInverse = map[CountryAlpha2]Country{}
-
-func init() {
-	for k, v := range CountryCodes {
-		CountryCodesInverse[v] = k
-	}
-}
-
-// areaCodeNutsData is from https://ec.europa.eu/eurostat/web/nuts/overview:
+// AreaCodeNutsData is from https://ec.europa.eu/eurostat/web/nuts/overview:
 // NUTS 2024 classification: https://ec.europa.eu/eurostat/documents/345175/629341/NUTS2021-NUTS2024.xlsx/2b35915f-9c14-6841-8197-353408c4522d?t=1717505289640
 const AreaCodeNutsData string = `Country code;NUTS Code;NUTS label;NUTS level;Country order;#
 BE;BE1;Région de Bruxelles-Capitale/Brussels Hoofdstedelijk Gewest;1;1;1
