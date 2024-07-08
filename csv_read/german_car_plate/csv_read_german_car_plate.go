@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"encoding/csv"
 	"encoding/json"
 	"io"
@@ -11,7 +10,7 @@ import (
 
 func main() {
 	resultCellToCarPlate := make(map[string]string)
-	r := csv.NewReader(bytes.NewReader(GermanWarnCellToCarPlateData))
+	r := csv.NewReader(strings.NewReader(GermanWarnCellToCarPlateData))
 	r.Comma = ';'
 	for i := 0; true; i++ {
 		row, err := r.Read()
@@ -44,7 +43,7 @@ func main() {
 }
 
 // GermanWarnCellToCarPlateData is downloaded from https://www.dwd.de/DE/leistungen/opendata/help/warnungen/cap_warncellids_csv.html
-var GermanWarnCellToCarPlateData = []byte(`WARNCELLID;NAME;KURZNAME;CCC;BL
+const GermanWarnCellToCarPlateData = `WARNCELLID;NAME;KURZNAME;CCC;BL
 101001000;Stadt Flensburg;Flensburg;FLX;SH
 101002000;Stadt Kiel;Kiel;KIX;SH
 101003000;Hansestadt Lübeck;Hansest. Lübeck;HLX;SH
@@ -11872,4 +11871,4 @@ var GermanWarnCellToCarPlateData = []byte(`WARNCELLID;NAME;KURZNAME;CCC;BL
 914730001;Kreis Nordsachsen - Nord;Nordsachsen-N;TON;SN
 914730002;Kreis Nordsachsen - Süd;Nordsachsen-S;TOS;SN
 915085001;Kreis Harz - Tiefland;Harz-Tiefland;HZX;ST
-915085002;Kreis Harz - Bergland (Oberharz);Harz-Bergland;HZH;ST`)
+915085002;Kreis Harz - Bergland (Oberharz);Harz-Bergland;HZH;ST`

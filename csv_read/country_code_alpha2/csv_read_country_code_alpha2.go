@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"encoding/csv"
 	"encoding/json"
 	"io"
@@ -10,8 +9,10 @@ import (
 )
 
 func main() {
-	resultCountryNameToAlpha2 := make(map[string]string)
-	r := csv.NewReader(bytes.NewReader(inputData))
+	resultAlpha2ToCountryName := make(map[string]string)
+	resultEuroCountries := make(map[string]string)
+
+	r := csv.NewReader(strings.NewReader(InputCountryCodeData))
 	r.Comma = ','
 	for i := 0; true; i++ {
 		row, err := r.Read()
@@ -33,19 +34,30 @@ func main() {
 		countryName := strings.TrimSpace(row[0])
 		countryCodeAlpha2 := strings.TrimSpace(row[1])
 		if countryName != "" && countryCodeAlpha2 != "" {
-			resultCountryNameToAlpha2[countryName] = countryCodeAlpha2
+			resultAlpha2ToCountryName[countryCodeAlpha2] = countryName
+		}
+		if len(row) >= 5 && row[5] == "Europe" {
+			resultEuroCountries[countryCodeAlpha2] = countryName
 		}
 	}
-	beauty, err := json.MarshalIndent(resultCountryNameToAlpha2, "", "\t")
+
+	beauty, err := json.MarshalIndent(resultAlpha2ToCountryName, "", "\t")
 	if err != nil {
 		log.Fatalf("error json.MarshalIndent: %v", err)
 	}
-	log.Printf("resultCountryNameToAlpha2:\n%s", beauty)
+	_ = beauty
+	log.Printf("resultAlpha2ToCountryName:\n%s", beauty)
+
+	beauty2, err := json.MarshalIndent(resultEuroCountries, "", "\t")
+	if err != nil {
+		log.Fatalf("error json.MarshalIndent: %v", err)
+	}
+	_ = beauty2
+	//log.Printf("resultAlpha2ToCountryName:\n%s", beauty2)
 }
 
-// inputData is from https://github.com/lukes/ISO-3166-Countries-with-Regional-Codes/blob/master/all/all.csv
-var inputData = []byte(
-	`name,alpha-2,alpha-3,country-code,iso_3166-2,region,sub-region,intermediate-region,region-code,sub-region-code,intermediate-region-code
+// InputCountryCodeData is from https://github.com/lukes/ISO-3166-Countries-with-Regional-Codes/blob/master/all/all.csv
+const InputCountryCodeData = `name,alpha-2,alpha-3,country-code,iso_3166-2,region,sub-region,intermediate-region,region-code,sub-region-code,intermediate-region-code
 Afghanistan,AF,AFG,004,ISO 3166-2:AF,Asia,Southern Asia,"",142,034,""
 Åland Islands,AX,ALA,248,ISO 3166-2:AX,Europe,Northern Europe,"",150,154,""
 Albania,AL,ALB,008,ISO 3166-2:AL,Europe,Southern Europe,"",150,039,""
@@ -294,4 +306,4 @@ Wallis and Futuna,WF,WLF,876,ISO 3166-2:WF,Oceania,Polynesia,"",009,061,""
 Western Sahara,EH,ESH,732,ISO 3166-2:EH,Africa,Northern Africa,"",002,015,""
 Yemen,YE,YEM,887,ISO 3166-2:YE,Asia,Western Asia,"",142,145,""
 Zambia,ZM,ZMB,894,ISO 3166-2:ZM,Africa,Sub-Saharan Africa,Eastern Africa,002,202,014
-Zimbabwe,ZW,ZWE,716,ISO 3166-2:ZW,Africa,Sub-Saharan Africa,Eastern Africa,002,202,014`)
+Zimbabwe,ZW,ZWE,716,ISO 3166-2:ZW,Africa,Sub-Saharan Africa,Eastern Africa,002,202,014`
