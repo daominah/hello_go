@@ -33,7 +33,7 @@ func main() {
 		warnCellID := strings.TrimSpace(row[0])
 		carPlate := strings.TrimSpace(row[3])
 		if warnCellID != "" && carPlate != "" {
-			resultCellToCarPlate[warnCellID] = row[3]
+			resultCellToCarPlate[warnCellID] = carPlate
 		}
 	}
 	beauty, err := json.MarshalIndent(resultCellToCarPlate, "", "\t")
