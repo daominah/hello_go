@@ -5,8 +5,6 @@ hello_go
 hello_go.exe
 http_server/http_server
 
-main.go
-
 *.out
 *.seq
 *.prof
