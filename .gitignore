@@ -45,3 +45,4 @@ crypto_try/*.srl
 
 *.seq
 tcgcorner_order.csv
+server.log
