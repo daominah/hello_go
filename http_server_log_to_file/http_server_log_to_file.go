@@ -47,6 +47,7 @@ func main() {
 	handler := http.NewServeMux()
 	allowedOrigins := []string{
 		"http://localhost", // dangerous, only for testing
+		"https://daominah.github.io",
 		"https://yugiodd.github.io",
 	}
 
